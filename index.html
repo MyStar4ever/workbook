@@ -227,6 +227,147 @@ h2{ font-size:1.35rem; margin:18px 0 28px 0; line-height:1.25;
     }
 }
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  /* отдельная рамка для негативной мысли */
+.neg-thought {
+  background: rgba(255, 70, 70, 0.1);
+  border: 1px solid var(--border-color-dep);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin: 8px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  max-width: 90%;
+  margin-left: auto; /* центрируем блокы по середине */
+  flex-direction: row; /* мысль + процент */
+  position: relative;
+}
+
+.neg-thought::before {
+  content:""; 
+  position:absolute; 
+  left:-8px; top:12px; 
+  width:0; height:0; 
+  border-top:8px solid transparent;
+  border-bottom:8px solid transparent;
+  border-right:8px solid var(--border-color-dep);
+}
+
+/* для рациональной мысли */
+.rat-thought {
+  background: rgba(80, 200, 120,0.1);
+  border:1px solid var(--border-color-happy);
+  border-radius:12px;
+  padding:12px 14px;
+  margin:8px 0;
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  max-width:90%;
+  margin-right:auto; /* чтобы сдвинуть в левую сторону */
+  position:relative;
+}
+
+.rat-thought::before {
+  content:"";
+  position:absolute;
+  right:-8px; top:12px;
+  width:0; height:0;
+  border-top:8px solid transparent;
+  border-bottom:8px solid transparent;
+  border-left:8px solid var(--border-color-happy);
+}
+
+/* маленький блок для процента */
+.thought-percent {
+  font-weight:700;
+  margin-left:12px;
+  min-width:40px;
+  text-align:center;
+}
+
+  
+  
+  
+  
+  
+  
+  /* общий контейнер мыслей */
+.chat-thought {
+  display: flex;
+  margin: 6px 0;
+  max-width: 85%;
+}
+
+/* негативная мысль — справа */
+.chat-thought.neg {
+  justify-content: flex-end;
+}
+
+/* рациональная мысль — слева */
+.chat-thought.rat {
+  justify-content: flex-start;
+}
+
+/* блок текста */
+.chat-bubble {
+  background: rgba(0,0,0,0.1);
+  padding: 10px 14px;
+  border-radius: 16px;
+  position: relative;
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  word-break: break-word;
+  line-height: 1.4;
+}
+
+/* цвет для негативной мысли */
+.chat-thought.neg .chat-bubble {
+  background: rgba(255, 70, 70, 0.2);
+  border: 1px solid var(--border-color-dep);
+  border-top-right-radius: 0;
+}
+
+/* цвет для рациональной мысли */
+.chat-thought.rat .chat-bubble {
+  background: rgba(80, 200, 120, 0.2);
+  border: 1px solid var(--border-color-happy);
+  border-top-left-radius: 0;
+}
+
+/* процент справа */
+.chat-percent {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--title-color);
+  min-width: 35px;
+  text-align: right;
+}
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
 </style>
 </head>
 <body>
@@ -410,104 +551,107 @@ function renderEmotions(){
   });
 }
 
+  function createChatThought(th) {
+  const wrapper = document.createElement("div");
+
+  // негативная мысль
+  const negWrapper = document.createElement("div");
+  negWrapper.className = "chat-thought neg";
+
+  const bubble = document.createElement("div");
+  bubble.className = "chat-bubble";
+
+  const text = document.createElement("div");
+  text.textContent = th.text || "";
+  bubble.appendChild(text);
+
+  const perc = document.createElement("div");
+  perc.className = "chat-percent";
+  perc.textContent = (th.beliefPercent || 0) + "%";
+  bubble.appendChild(perc);
+
+  negWrapper.appendChild(bubble);
+  wrapper.appendChild(negWrapper);
+
+  // рациональные мысли
+  (th.rationals || []).forEach(r => {
+    const ratWrapper = document.createElement("div");
+    ratWrapper.className = "chat-thought rat";
+
+    const ratBubble = document.createElement("div");
+    ratBubble.className = "chat-bubble";
+
+    const rText = document.createElement("div");
+    rText.textContent = r.text || "";
+    ratBubble.appendChild(rText);
+
+    const rPerc = document.createElement("div");
+    rPerc.className = "chat-percent";
+    rPerc.textContent = (r.percent || 50) + "%";
+    ratBubble.appendChild(rPerc);
+
+    ratWrapper.appendChild(ratBubble);
+    wrapper.appendChild(ratWrapper);
+  });
+
+  return wrapper;
+}
+
+  
+  
 /* ====== Мысли: отрисовка / логика ====== */
-const thoughtsWrap = document.getElementById("thoughtsWrap");
-const addThoughtBtn = document.getElementById("addThoughtBtn");
-
 function createThoughtNode(th){
-  const card = document.createElement("div");
-  card.className = "thought-card";
+  const wrapper = document.createElement("div");
 
-  // head
-  const head = document.createElement("div"); head.className="thought-head";
-  const title = document.createElement("div"); title.className="thought-title";
-  const num = state.thoughts.findIndex(x=>x.id===th.id)+1;
-  title.textContent = "Мысль " + num;
-  head.appendChild(title);
+  // Негативная мысль
+  const neg = document.createElement("div");
+  neg.className = "neg-thought";
+  const taNeg = document.createElement("textarea");
+  taNeg.rows = 2;
+  taNeg.style.flex = "1";
+  taNeg.placeholder = "Опиши автоматическую негативную мысль...";
+  taNeg.value = th.text || "";
+  taNeg.addEventListener("input", ()=>{ th.text = taNeg.value; saveData(state); });
+  const percNeg = document.createElement("input");
+  percNeg.type = "number"; percNeg.className = "thought-percent";
+  percNeg.value = th.beliefPercent || 50; percNeg.min=0; percNeg.max=100;
+  percNeg.addEventListener("change", ()=>{ th.beliefPercent = parseInt(percNeg.value||0,10); saveData(state); });
+  neg.appendChild(taNeg); neg.appendChild(percNeg);
+  wrapper.appendChild(neg);
 
-  const headRight = document.createElement("div");
-  headRight.style.display="flex";
-  headRight.style.gap="8px";
-  // delete btn
-  const del = document.createElement("button");
-  del.className="remove-btn";
-  del.textContent="Удалить";
-  del.addEventListener("click", ()=>{
-    if(!confirm("Удалить мысль?")) return;
-    state.thoughts = state.thoughts.filter(x=>x.id!==th.id);
-    saveData(state);
-    renderThoughts();
+  // Рациональные мысли
+  const ratWrap = document.createElement("div");
+  ratWrap.style.marginTop = "6px";
+  const rLabel = document.createElement("div"); rLabel.style.fontWeight="700"; rLabel.textContent="Рациональные мысли";
+  ratWrap.appendChild(rLabel);
+
+  const rList = document.createElement("div"); rList.className = "rational-list";
+  (th.rationals||[]).forEach(r=>{
+    const rNode = document.createElement("div");
+    rNode.className="rat-thought";
+    const rTA = document.createElement("textarea"); rTA.rows=2; rTA.style.flex="1";
+    rTA.value=r.text||""; rTA.placeholder="Рациональная мысль";
+    rTA.addEventListener("input", ()=>{ r.text=rTA.value; saveData(state); });
+    const rPerc = document.createElement("input"); rPerc.type="number"; rPerc.className="thought-percent";
+    rPerc.value=r.percent||50; rPerc.min=0; rPerc.max=100;
+    rPerc.addEventListener("change", ()=>{ r.percent=parseInt(rPerc.value||0,10); saveData(state); });
+    rNode.appendChild(rTA); rNode.appendChild(rPerc);
+    rList.appendChild(rNode);
   });
-  headRight.appendChild(del);
-  head.appendChild(headRight);
-  card.appendChild(head);
+  ratWrap.appendChild(rList);
 
-  // 2a: негативная мысль
-  const f1 = document.createElement("div"); f1.className="field";
-  const lbl1 = document.createElement("label"); lbl1.textContent = "Негативная мысль";
-  const ta1 = document.createElement("textarea"); ta1.rows=2;
-  ta1.placeholder = "Опиши автоматическую негативную мысль...";
-  ta1.value = th.text || "";
-  ta1.addEventListener("input", ()=>{ th.text = ta1.value; saveData(state); });
-  f1.appendChild(lbl1); f1.appendChild(ta1);
-
-  // belief percent
-  const smallBel = document.createElement("div"); smallBel.className="inline-small";
-  const bLabel = document.createElement("label"); bLabel.textContent="Вера (%)";
-  bLabel.style.minWidth="70px";
-  const bInput = document.createElement("input"); bInput.type="number"; bInput.className="small-input";
-  bInput.value = th.beliefPercent || 0; bInput.min=0; bInput.max=100;
-  bInput.addEventListener("change", ()=>{ th.beliefPercent = parseInt(bInput.value||0,10); saveData(state); renderThoughts(); });
-  smallBel.appendChild(bLabel); smallBel.appendChild(bInput);
-  f1.appendChild(smallBel);
-
-  card.appendChild(f1);
-
-  // 2b: искажения
-  const f2 = document.createElement("div"); f2.className="field";
-  const lbl2 = document.createElement("label"); lbl2.textContent="Искажения (через запятую)";
-  const ta2 = document.createElement("input"); ta2.type="text";
-  ta2.placeholder = "Выбери из шпаргалки или впиши свои";
-  ta2.value = th.distortions || "";
-  ta2.addEventListener("input", ()=>{ th.distortions = ta2.value; saveData(state); });
-  f2.appendChild(lbl2); f2.appendChild(ta2);
-  card.appendChild(f2);
-
-  // explanation
-  const f2b = document.createElement("div"); f2b.className="field";
-  const lbl2b = document.createElement("label"); lbl2b.textContent="Почему это искажение?";
-  const ta2b = document.createElement("textarea"); ta2b.rows=2; ta2b.placeholder="Объясни, почему считаешь, что это искажение";
-  ta2b.value = th.explain || "";
-  ta2b.addEventListener("input", ()=>{ th.explain = ta2b.value; saveData(state); });
-  f2b.appendChild(lbl2b); f2b.appendChild(ta2b);
-  card.appendChild(f2b);
-
-  // 2c: рациональные ответы
-  const rationalsWrap = document.createElement("div");
-  rationalsWrap.style.marginTop = "8px";
-  const rLabel = document.createElement("div"); rLabel.style.fontWeight="700"; rLabel.textContent = "Новые рациональные мысли";
-  rationalsWrap.appendChild(rLabel);
-
-  const list = document.createElement("div"); list.className = "rational-list";
-  (th.rationals || []).forEach((r,ri) => {
-    list.appendChild(makeRationalNode(th, r, ri));
-  });
-  rationalsWrap.appendChild(list);
-
-  const addRBtn = document.createElement("button");
-  addRBtn.className = "btn ghost";
-  addRBtn.textContent = "+ Добавить рациональную мысль";
+  const addRBtn = document.createElement("button"); addRBtn.className="btn ghost"; addRBtn.textContent="+ Добавить рациональную мысль";
   addRBtn.addEventListener("click", ()=>{
-    th.rationals = th.rationals || [];
-    const newR = { id: uid(), text: "", percent: 50 };
-    th.rationals.push(newR);
+    th.rationals = th.rationals||[];
+    th.rationals.push({id:uid(), text:"", percent:50});
     saveData(state); renderThoughts();
   });
-  rationalsWrap.appendChild(addRBtn);
-  card.appendChild(rationalsWrap);
+  ratWrap.appendChild(addRBtn);
+  wrapper.appendChild(ratWrap);
 
-  return card;
+  return wrapper;
 }
+
 
 function makeRationalNode(th, r, idx){
   const node = document.createElement("div");
