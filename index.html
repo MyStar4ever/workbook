@@ -3,434 +3,137 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Дневник эмоций и мыслей</title>
+<title>Дневник эмоций и мыслей — рабочая версия</title>
 <style>
 :root{
-  --bg-color:#1a1a2e;
-  --container-bg-color:#2a2a3e;
-  --section-bg-color:#3e4a5e;
-  --text-color:#e0e0e0;
-  --title-color:#fff;
-  --button-color:#4A90E2;
-  --button-hover-color:#357ABD;
-  --selected-bg-color:#4a5a6e;
-  --border-color-dep:#D13E4E;
-  --border-color-sui:#c678dd;
-  --border-color-anx:#FFA500;
-  --border-color-anger:#FF4500;
-  --border-color-happy:#50C878;
-  --border-color-phys:#9370DB;
-  --border-color-rel:#40E0D0;
-  --muted:#99a0b0;
-  --card-shadow: 0 8px 30px rgba(0,0,0,0.45);
+  --bg:#1a1a2e;
+  --card:#2a2a3e;
+  --muted:#9aa3b2;
+  --neg:#2b5278;
+  --rat:#3b3d42;
+  --text:#e6e6e6;
+  --accent:#4A90E2;
+  --shadow: 0 8px 28px rgba(0,0,0,0.45);
 }
-
-/* page */
+*{box-sizing:border-box}
 body{
-  margin:0;
-  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background:var(--bg-color);
-  color:var(--text-color);
-  line-height:1.5;
-  display: flex;
-    flex-direction: column;
-    align-items: center; /* центрирует по горизонтали */
-    justify-content: flex-start;
+  margin:0; font-family:Inter, "Segoe UI", Roboto, Arial, sans-serif;
+  background:var(--bg); color:var(--text); -webkit-font-smoothing:antialiased;
+  display:flex; justify-content:center; padding:30px 14px;
 }
-.container {
-    max-width: 900px;
-    width: 95%; /* добавь — чтобы занимало почти всю ширину на телефоне */
-    margin: 40px auto;
-    padding: 30px;
-    background-color: var(--container-bg-color);
-    border-radius: 12px;
-    box-sizing: border-box;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-    display: flex;
-    flex-direction: column; /* ← важно */
-    align-items: stretch;
+.container{
+  width:100%; max-width:980px; background:var(--card); border-radius:12px; padding:22px;
+  box-shadow:var(--shadow);
 }
 
-/* headings */
-h1,h2{ text-align:center; color:var(--title-color); margin:0; font-weight:600;}
-h1{ font-size:2rem; padding-bottom:12px; border-bottom:2px solid var(--button-color); margin-bottom:14px;}
-h2{ font-size:1.35rem; margin:18px 0 28px 0; line-height:1.25;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.3), 0 0 6px rgba(255,255,255,0.03), 0 0 16px rgba(0,0,0,0.6);
+/* header */
+.header{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; }
+.header h1{ margin:0; font-size:20px; color:var(--text); font-weight:700; }
+.header .add-row{ display:flex; gap:8px; align-items:center; }
+
+/* input controls */
+.input-text{
+  padding:8px 10px; border-radius:10px; border:1px solid rgba(255,255,255,0.04);
+  background:rgba(255,255,255,0.02); color:var(--text); min-width:220px;
+}
+.input-num{
+  width:72px; padding:8px 10px; border-radius:10px; border:1px solid rgba(255,255,255,0.04);
+  background:rgba(255,255,255,0.02); color:var(--text); text-align:center;
 }
 
 /* layout */
-.grid{
-  display:grid;
-  grid-template-columns: 1fr 420px;
-  gap:22px;
-}
-@media (max-width:1000px){ .grid{ grid-template-columns: 1fr; } }
+.grid{ display:grid; grid-template-columns: 1fr 320px; gap:20px; }
+@media(max-width:1000px){ .grid{ grid-template-columns: 1fr; } }
 
-/* sections */
-.section{
-  background:var(--section-bg-color);
-  padding:18px;
-  border-radius:12px;
-  box-shadow: var(--card-shadow);
-}
+/* left column - thoughts */
+.section{ background:transparent; padding:0; }
 
-/* borders by category (for reference, used on some blocks) */
-.section.depression{ border:2px solid var(--border-color-dep); }
-.section.suicidal{ border:2px solid var(--border-color-sui); }
-.section.anxiety{ border:2px solid var(--border-color-anx); }
-.section.anger{ border:2px solid var(--border-color-anger); }
-.section.happiness{ border:2px solid var(--border-color-happy); }
-.section.physical{ border:2px solid var(--border-color-phys); }
-.section.relationships{ border:2px solid var(--border-color-rel); }
-  .section, .question-section {
-    width: 100%; /* ← чтобы каждый блок занимал всю ширину */
-    margin: 20px 0;
-    display: block;
-    box-sizing: border-box;
+/* chat area */
+.chat-area{ background:rgba(0,0,0,0.04); border-radius:12px; padding:14px; display:flex; flex-direction:column; gap:12px; }
+
+/* chat bubble base */
+.chat-message {
+  display:block;
+  max-width:85%;
+  padding:10px 14px;
+  border-radius:14px;
+  word-break:break-word;
+  line-height:1.35;
+  box-shadow:0 4px 10px rgba(0,0,0,0.18);
 }
 
-/* Instructions block */
-.instructions{
-  text-align:left;
-  max-width:880px;
-  margin:0 auto 14px auto;
-  font-size:1rem;
-  line-height:1.45;
-  color:var(--text-color);
-  opacity:0.92;
-  background: linear-gradient(90deg, rgba(255,255,255,0.01), rgba(255,255,255,0.01));
-  padding:12px 14px;
-  border-radius:10px;
+/* negative = outgoing (right) */
+.chat-message.neg { margin-left:auto; background:var(--neg); color:#fff; border-bottom-right-radius:6px; }
+
+/* rational = incoming (left) */
+.chat-message.rat { margin-right:auto; background:var(--rat); color:#fff; border-bottom-left-radius:6px; }
+
+/* meta row (percent + small controls) */
+.meta-row{ display:flex; gap:8px; align-items:center; justify-content:flex-end; margin-top:6px; color:var(--muted); font-size:12px; }
+.message-controls{ display:flex; gap:6px; align-items:center; }
+
+/* small action button */
+.icon-btn{
+  background:transparent; border:1px solid rgba(255,255,255,0.04); color:var(--text);
+  padding:6px 8px; border-radius:8px; cursor:pointer; font-weight:600; font-size:13px;
+}
+.icon-btn.ghost{ opacity:0.9; }
+
+/* right column - cheats */
+.side-section{ background:rgba(0,0,0,0.03); padding:14px; border-radius:12px; height:100%; }
+.side-section h3{ margin:0 0 10px 0; font-size:16px; color:var(--text); }
+.cheat-item{ padding:8px; border-radius:8px; background:rgba(255,255,255,0.02); margin-bottom:8px; cursor:pointer; color:var(--text); }
+.cheat-item:hover{ transform:translateY(-2px); background:rgba(255,255,255,0.03); }
+
+/* footer note */
+.note{ color:var(--muted); font-size:13px; margin-top:8px; }
+
+/* responsive: make bubbles adapt to width */
+@media (max-width:600px){
+  .chat-message{ max-width:92%; padding:10px; font-size:15px; }
+  .header{ flex-direction:column; align-items:flex-start; gap:10px; }
+  .header .add-row{ width:100%; }
+  .input-text{ width:100%; min-width:0; }
 }
 
-/* emotions list */
-.emotions-list{ display:flex; flex-direction:column; gap:10px; }
-.emotion-row{
-  display:flex; align-items:center; justify-content:space-between;
-  padding:10px; border-radius:10px; background:rgba(255,255,255,0.02);
-  transition:transform .15s, box-shadow .15s, background-color .15s;
-}
-.emotion-row:hover{ transform:translateY(-3px); box-shadow:0 10px 30px rgba(0,0,0,0.45);}
-.emotion-name{
-  cursor:pointer; user-select:none; font-weight:600; font-size:1rem;
-}
-.emotion-name.selected{ color:var(--title-color); text-decoration:underline; }
-.emotion-controls{ display:flex; gap:12px; align-items:center; }
-
-/* percent display */
-.percent-badge{
-  min-width:56px; text-align:center; padding:8px 10px; border-radius:8px;
-  background:var(--selected-bg-color); color:var(--title-color); font-weight:700;
-  cursor:pointer;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.45);
-}
-.percent-input{
-  width:72px; padding:6px 8px; border-radius:8px; border:none; outline:none;
-  font-weight:700; font-size:0.98rem;
-}
-
-/* thoughts area */
-.thoughts-wrap{ display:flex; flex-direction:column; gap:12px; }
-.controls-row{ display:flex; gap:10px; justify-content:space-between; align-items:center; margin-bottom:8px; }
-.btn{ background:var(--button-color); color:var(--title-color); border:none; padding:10px 12px; border-radius:8px; cursor:pointer; font-weight:700;}
-.btn.ghost{ background:transparent; border:1px solid rgba(255,255,255,0.06); color:var(--text-color); }
-
-/* single thought card */
-.thought-card{
-  background: rgba(0,0,0,0.08);
-  border-radius:10px;
-  padding:12px;
-  border:1px solid rgba(255,255,255,0.03);
-}
-.thought-head{ display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:10px; }
-.thought-title{ font-weight:800; font-size:1rem; }
-.small-muted{ color:var(--muted); font-size:0.9rem; }
-
-/* fields */
-.field{ display:flex; gap:10px; align-items:flex-start; margin-bottom:10px; flex-wrap:wrap; }
-.field label{ min-width:140px; font-weight:600; color:#e8e8e8; }
-.field textarea, .field input[type="text"]{
-  width:100%; min-width:250px; max-width:100%; padding:8px 10px; border-radius:8px; border:none; outline:none;
-  background:rgba(255,255,255,0.03); color:var(--text-color); font-size:0.95rem;
-  resize:vertical;
-}
-.inline-small{ display:flex; gap:8px; align-items:center; }
-.small-input{ width:88px; padding:6px 8px; border-radius:8px; border:none; outline:none; font-weight:700; text-align:center; }
-
-/* rational responses list */
-.rational-list{ display:flex; flex-direction:column; gap:8px; margin-top:8px; }
-.rational-item{ display:flex; gap:8px; align-items:flex-start; background:rgba(255,255,255,0.02); padding:8px; border-radius:8px; }
-
-/* helpers */
-.note{ font-size:0.9rem; color:var(--muted); margin-top:6px; }
-.remove-btn{ background:transparent; color:#f66; border:none; cursor:pointer; font-weight:800; }
-
-/* шпаргалка */
-.cheat-list{ display:flex; flex-direction:column; gap:8px; }
-.cheat-item{ padding:8px; border-radius:8px; cursor:pointer; background:rgba(255,255,255,0.02); }
-.cheat-item:hover{ background:rgba(255,255,255,0.03); transform:translateY(-2px); }
-
-/* footer: result / save indicator */
-.footer-row{ display:flex; gap:10px; justify-content:space-between; align-items:center; margin-top:18px; }
-.save-hint{ color:var(--muted); font-size:0.95rem; }
-
-/* small responsive tweaks */
-@media (max-width:560px){
-  .grid{ gap:12px; }
-  .emotion-controls{ gap:8px; }
-  .percent-badge{ min-width:48px; }
-}
-  
-  
-  
-  
-  
-  
-  /*Это то, что делает страницу читаемой на телефоне.*/
-  @media (max-width: 768px) {
-    .container {
-        width: 95%;
-        margin: 10px auto;
-        padding: 20px;
-    }
-
-    h1 { font-size: 1.6rem; }
-    h2 { font-size: 1.2rem; }
-
-    .section,
-    .question-section {
-        padding: 15px;
-        margin-top: 25px;
-    }
-
-    input, textarea, button {
-        font-size: 1rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .container {
-        padding: 15px;
-    }
-
-    h1 { font-size: 1.4rem; }
-    h2 { font-size: 1rem; }
-
-    .section,
-    .question-section {
-        padding: 10px;
-        margin-top: 20px;
-    }
-
-    button {
-        padding: 12px;
-    }
-}
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  /* отдельная рамка для негативной мысли */
-.neg-thought {
-  background: rgba(255, 70, 70, 0.1);
-  border: 1px solid var(--border-color-dep);
-  border-radius: 12px;
-  padding: 12px 14px;
-  margin: 8px 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  max-width: 90%;
-  margin-left: auto; /* центрируем блокы по середине */
-  flex-direction: row; /* мысль + процент */
-  position: relative;
-}
-
-.neg-thought::before {
-  content:""; 
-  position:absolute; 
-  left:-8px; top:12px; 
-  width:0; height:0; 
-  border-top:8px solid transparent;
-  border-bottom:8px solid transparent;
-  border-right:8px solid var(--border-color-dep);
-}
-
-/* для рациональной мысли */
-.rat-thought {
-  background: rgba(80, 200, 120,0.1);
-  border:1px solid var(--border-color-happy);
-  border-radius:12px;
-  padding:12px 14px;
-  margin:8px 0;
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  max-width:90%;
-  margin-right:auto; /* чтобы сдвинуть в левую сторону */
-  position:relative;
-}
-
-.rat-thought::before {
-  content:"";
-  position:absolute;
-  right:-8px; top:12px;
-  width:0; height:0;
-  border-top:8px solid transparent;
-  border-bottom:8px solid transparent;
-  border-left:8px solid var(--border-color-happy);
-}
-
-/* маленький блок для процента */
-.thought-percent {
-  font-weight:700;
-  margin-left:12px;
-  min-width:40px;
-  text-align:center;
-}
-
-  
-  
-  
-  
-  
-  
-  /* общий контейнер мыслей */
-.chat-thought {
-  display: flex;
-  margin: 6px 0;
-  max-width: 85%;
-}
-
-/* негативная мысль — справа */
-.chat-thought.neg {
-  justify-content: flex-end;
-}
-
-/* рациональная мысль — слева */
-.chat-thought.rat {
-  justify-content: flex-start;
-}
-
-/* блок текста */
-.chat-bubble {
-  background: rgba(0,0,0,0.1);
-  padding: 10px 14px;
-  border-radius: 16px;
-  position: relative;
-  display: flex;
-  gap: 8px;
-  align-items: flex-end;
-  word-break: break-word;
-  line-height: 1.4;
-}
-
-/* цвет для негативной мысли */
-.chat-thought.neg .chat-bubble {
-  background: rgba(255, 70, 70, 0.2);
-  border: 1px solid var(--border-color-dep);
-  border-top-right-radius: 0;
-}
-
-/* цвет для рациональной мысли */
-.chat-thought.rat .chat-bubble {
-  background: rgba(80, 200, 120, 0.2);
-  border: 1px solid var(--border-color-happy);
-  border-top-left-radius: 0;
-}
-
-/* процент справа */
-.chat-percent {
-  font-weight: 700;
-  font-size: 0.85rem;
-  color: var(--title-color);
-  min-width: 35px;
-  text-align: right;
-}
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
+/* small helpers */
+.hidden{ display:none; }
+.small{ font-size:13px; color:var(--muted); }
 </style>
 </head>
 <body>
 <div class="container">
-  <h1>Дневник эмоций и мыслей</h1>
-
-  <p class="instructions">
-    Краткая инструкция: отмечай эмоции и ставь процент интенсивности — это помогает увидеть, что именно доминирует.
-    В блоке «Мысли» записывай автоматические негативные мысли, разбирай их по шагам (искривления → объяснение → новые рациональные мысли).
-    Всё сохраняется автоматически в браузере.
-  </p>
+  <div class="header">
+    <h1>Негативные мысли</h1>
+    <div class="add-row">
+      <input id="newThoughtText" class="input-text" placeholder="Опиши автоматическую негативную мысль..." />
+      <input id="newThoughtPct" class="input-num" type="number" min="0" max="100" value="50" />
+      <button id="addBtn" class="icon-btn">Добавить</button>
+    </div>
+  </div>
 
   <div class="grid">
-    <!-- Левая колонка: эмоции + мысли -->
-    <div>
-      <!-- Эмоции -->
-      <div class="section depression" id="emotionsSection">
-        <h2>Эмоции</h2>
-        <div class="emotions-list" id="emotionsList"></div>
-        <div class="note">Клик по названию — выбирает эмоцию. Клик по проценту — редактировать.</div>
+    <div class="section">
+      <div id="chatArea" class="chat-area" aria-live="polite">
+        <!-- bubbles will appear here -->
       </div>
 
-      <!-- Мысли -->
-      <div class="section" style="margin-top:18px;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <h2 style="text-align:left;margin:0;">Негативные мысли — разбор</h2>
-          <div><button class="btn" id="addThoughtBtn">+ Добавить мысль</button></div>
-        </div>
-
-        <div class="thoughts-wrap" id="thoughtsWrap">
-          <!-- карточки мыслей появятся здесь -->
-        </div>
-
-        <div class="note" style="margin-top:8px;">
-          Порядок: <strong>мысль → искажения → объяснение → новые рациональные мысли</strong>. Можно добавлять несколько рациональных ответов.
-        </div>
-      </div>
+      <div class="note">Порядок: мысль → искажения → объяснение → рациональные ответы. Нажми на мысль, чтобы редактировать.</div>
     </div>
 
-    <!-- Правая колонка: шпаргалка -->
-    <div>
-      <div class="section suicidal" id="cheatsSection">
-        <h2>Шпаргалка: когнитивные искажения</h2>
-        <div class="cheat-list" id="cheatList">
-          <!-- items filled by JS -->
-        </div>
-
-       
-        <div class="footer-row" style="margin-top:12px;">
-          <div class="save-hint" id="saveHint">Сохранение: автоматически</div>
-          <div><button class="btn ghost" id="clearBtn">Очистить всё</button></div>
-        </div>
-      </div>
-    </div>
+    <aside class="side-section">
+      <h3>Шпаргалка — искажения</h3>
+      <div id="cheatList"></div>
+      <div style="margin-top:10px;" class="small">Клик — добавит искажение в последнюю мысль.</div>
+    </aside>
   </div>
 </div>
 
 <script>
-/* ====== Данные по умолчанию ====== */
-const EMOTIONS = [
-  "Грусть","Радость","Злость","Страх","Стыд","Вина","Тревога","Удивление","Спокойствие","Отвращение"
-];
+/* ====== Простая рабочая логика ====== */
+const STORAGE_KEY = "diary_chat_v1";
 
+/* стартовые шпаргалки */
 const CHEATS = [
   "Катастрофизация",
   "Чтение мыслей",
@@ -438,318 +141,179 @@ const CHEATS = [
   "Эмоциональное обоснование",
   "Долженствование",
   "Обесценивание положительного",
-  "Генерализация (всегда/никогда)",
+  "Генерализация",
   "Персонализация",
   "Фильтрация отрицательного",
   "Завышенные стандарты"
 ];
 
-/* ====== Работа с localStorage ====== */
-const STORAGE_KEY = "diaryData_v1";
+let state = load() || { thoughts: [] };
 
-function loadData(){
-  try{
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if(!raw) return null;
-    return JSON.parse(raw);
-  }catch(e){ console.warn("load error", e); return null; }
+/* ====== Сохранялка/загрузилка ====== */
+function save(){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+  catch(e){ console.warn("save err", e); }
 }
-function saveData(state){
-  try{
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    document.getElementById("saveHint").textContent = "Сохранено: " + (new Date()).toLocaleTimeString();
-  }catch(e){ console.warn("save error", e); }
+function load(){
+  try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)); } catch(e){ return null; }
 }
 
-/* ====== Инициализация state ====== */
-let state = loadData() || {
-  emotions: EMOTIONS.map(name => ({ name, active:false, percent:0 })),
-  thoughts: [] // каждая мысль: {id, text, beliefPercent, distortions, explain, rationals: [{text, percent}]}
-};
+/* ====== UI элементы ====== */
+const chatArea = document.getElementById("chatArea");
+const addBtn = document.getElementById("addBtn");
+const newText = document.getElementById("newThoughtText");
+const newPct = document.getElementById("newThoughtPct");
+const cheatList = document.getElementById("cheatList");
 
-/* ====== Утилиты ====== */
-function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
-
-/* ====== Отрисовка эмоций ====== */
-const emotionsList = document.getElementById("emotionsList");
-
-function renderEmotions(){
-  emotionsList.innerHTML = "";
-  state.emotions.forEach((em, idx) => {
-    const row = document.createElement("div");
-    row.className = "emotion-row";
-
-    const name = document.createElement("div");
-    name.className = "emotion-name" + (em.active ? " selected" : "");
-    name.textContent = em.name;
-    name.title = "Клик — выбрать / снять выбор";
-    name.addEventListener("click", () => {
-      em.active = !em.active;
-      saveData(state);
-      renderEmotions();
-    });
-
-    const controls = document.createElement("div");
-    controls.className = "emotion-controls";
-
-    // percent badge (click to edit)
-    const badge = document.createElement("div");
-    badge.className = "percent-badge";
-    badge.textContent = em.percent + "%";
-    badge.title = "Клик, чтобы изменить процент";
-    badge.addEventListener("click", () => {
-      const input = document.createElement("input");
-      input.className = "percent-input";
-      input.type = "number";
-      input.min = 0; input.max = 100;
-      input.value = em.percent;
-      // replace badge with input
-      controls.replaceChild(input, badge);
-      input.focus();
-      input.select();
-      function finish(){
-        let v = parseInt(input.value || 0, 10);
-        if(Number.isNaN(v)) v = 0;
-        v = Math.max(0, Math.min(100, v));
-        em.percent = v;
-        saveData(state);
-        renderEmotions();
-      }
-      input.addEventListener("blur", finish);
-      input.addEventListener("keydown", (ev) => {
-        if(ev.key === "Enter"){ input.blur(); }
-        if(ev.key === "Escape"){ renderEmotions(); }
-      });
-    });
-
-    controls.appendChild(badge);
-
-    // quick decrement/increment buttons
-    const dec = document.createElement("button");
-    dec.className = "btn ghost";
-    dec.textContent = "-5";
-    dec.title = "Уменьшить на 5%";
-    dec.addEventListener("click", () => {
-      em.percent = Math.max(0, em.percent - 5);
-      saveData(state); renderEmotions();
-    });
-    const inc = document.createElement("button");
-    inc.className = "btn ghost";
-    inc.textContent = "+5";
-    inc.title = "Увеличить на 5%";
-    inc.addEventListener("click", () => {
-      em.percent = Math.min(100, em.percent + 5);
-      saveData(state); renderEmotions();
-    });
-
-    controls.appendChild(dec);
-    controls.appendChild(inc);
-
-    row.appendChild(name);
-    row.appendChild(controls);
-    emotionsList.appendChild(row);
-  });
-}
-
-  function createChatThought(th) {
-  const wrapper = document.createElement("div");
-
-  // негативная мысль
-  const negWrapper = document.createElement("div");
-  negWrapper.className = "chat-thought neg";
-
-  const bubble = document.createElement("div");
-  bubble.className = "chat-bubble";
-
-  const text = document.createElement("div");
-  text.textContent = th.text || "";
-  bubble.appendChild(text);
-
-  const perc = document.createElement("div");
-  perc.className = "chat-percent";
-  perc.textContent = (th.beliefPercent || 0) + "%";
-  bubble.appendChild(perc);
-
-  negWrapper.appendChild(bubble);
-  wrapper.appendChild(negWrapper);
-
-  // рациональные мысли
-  (th.rationals || []).forEach(r => {
-    const ratWrapper = document.createElement("div");
-    ratWrapper.className = "chat-thought rat";
-
-    const ratBubble = document.createElement("div");
-    ratBubble.className = "chat-bubble";
-
-    const rText = document.createElement("div");
-    rText.textContent = r.text || "";
-    ratBubble.appendChild(rText);
-
-    const rPerc = document.createElement("div");
-    rPerc.className = "chat-percent";
-    rPerc.textContent = (r.percent || 50) + "%";
-    ratBubble.appendChild(rPerc);
-
-    ratWrapper.appendChild(ratBubble);
-    wrapper.appendChild(ratWrapper);
-  });
-
-  return wrapper;
-}
-
-  
-  
-/* ====== Мысли: отрисовка / логика ====== */
-function createThoughtNode(th){
-  const wrapper = document.createElement("div");
-
-  // Негативная мысль
-  const neg = document.createElement("div");
-  neg.className = "neg-thought";
-  const taNeg = document.createElement("textarea");
-  taNeg.rows = 2;
-  taNeg.style.flex = "1";
-  taNeg.placeholder = "Опиши автоматическую негативную мысль...";
-  taNeg.value = th.text || "";
-  taNeg.addEventListener("input", ()=>{ th.text = taNeg.value; saveData(state); });
-  const percNeg = document.createElement("input");
-  percNeg.type = "number"; percNeg.className = "thought-percent";
-  percNeg.value = th.beliefPercent || 50; percNeg.min=0; percNeg.max=100;
-  percNeg.addEventListener("change", ()=>{ th.beliefPercent = parseInt(percNeg.value||0,10); saveData(state); });
-  neg.appendChild(taNeg); neg.appendChild(percNeg);
-  wrapper.appendChild(neg);
-
-  // Рациональные мысли
-  const ratWrap = document.createElement("div");
-  ratWrap.style.marginTop = "6px";
-  const rLabel = document.createElement("div"); rLabel.style.fontWeight="700"; rLabel.textContent="Рациональные мысли";
-  ratWrap.appendChild(rLabel);
-
-  const rList = document.createElement("div"); rList.className = "rational-list";
-  (th.rationals||[]).forEach(r=>{
-    const rNode = document.createElement("div");
-    rNode.className="rat-thought";
-    const rTA = document.createElement("textarea"); rTA.rows=2; rTA.style.flex="1";
-    rTA.value=r.text||""; rTA.placeholder="Рациональная мысль";
-    rTA.addEventListener("input", ()=>{ r.text=rTA.value; saveData(state); });
-    const rPerc = document.createElement("input"); rPerc.type="number"; rPerc.className="thought-percent";
-    rPerc.value=r.percent||50; rPerc.min=0; rPerc.max=100;
-    rPerc.addEventListener("change", ()=>{ r.percent=parseInt(rPerc.value||0,10); saveData(state); });
-    rNode.appendChild(rTA); rNode.appendChild(rPerc);
-    rList.appendChild(rNode);
-  });
-  ratWrap.appendChild(rList);
-
-  const addRBtn = document.createElement("button"); addRBtn.className="btn ghost"; addRBtn.textContent="+ Добавить рациональную мысль";
-  addRBtn.addEventListener("click", ()=>{
-    th.rationals = th.rationals||[];
-    th.rationals.push({id:uid(), text:"", percent:50});
-    saveData(state); renderThoughts();
-  });
-  ratWrap.appendChild(addRBtn);
-  wrapper.appendChild(ratWrap);
-
-  return wrapper;
-}
-
-
-function makeRationalNode(th, r, idx){
-  const node = document.createElement("div");
-  node.className = "rational-item";
-
-  const textArea = document.createElement("textarea"); textArea.rows=2; textArea.style.flex="1";
-  textArea.placeholder = "Напиши рациональную альтернативу";
-  textArea.value = r.text || "";
-  textArea.addEventListener("input", ()=>{ r.text = textArea.value; saveData(state); });
-
-  const perc = document.createElement("input"); perc.type="number"; perc.className="small-input";
-  perc.value = r.percent || 50; perc.min=0; perc.max=100;
-  perc.addEventListener("change", ()=>{ r.percent = parseInt(perc.value||0,10); saveData(state); });
-
-  const rem = document.createElement("button");
-  rem.className = "remove-btn";
-  rem.textContent = "×";
-  rem.title = "Удалить рациональную мысль";
-  rem.addEventListener("click", ()=>{
-    th.rationals = th.rationals.filter(x=>x.id!==r.id);
-    saveData(state); renderThoughts();
-  });
-
-  node.appendChild(textArea);
-  const right = document.createElement("div"); right.style.display="flex"; right.style.flexDirection="column"; right.style.gap="8px"; right.style.alignItems="flex-end";
-  right.appendChild(perc);
-  right.appendChild(rem);
-  node.appendChild(right);
-  return node;
-}
-
-function renderThoughts(){
-  thoughtsWrap.innerHTML = "";
-  // ensure numbering stable
-  state.thoughts.forEach((th, idx) => {
-    const node = createThoughtNode(th);
-    thoughtsWrap.appendChild(node);
-  });
-}
-
-/* ====== cheats list (шпаргалка) ====== */
-const cheatListNode = document.getElementById("cheatList");
+/* ====== Render cheats ====== */
 function renderCheats(){
-  cheatListNode.innerHTML="";
-  CHEATS.forEach(ch => {
-    const it = document.createElement("div");
-    it.className = "cheat-item";
-    it.textContent = ch;
-    it.title = "Клик — добавить в поле искажений активной мысли";
-    it.addEventListener("click", () => {
-      // если есть выбранная мысль — добавляем в её distortions (последняя добавленная)
+  cheatList.innerHTML = "";
+  CHEATS.forEach(c=>{
+    const d = document.createElement("div");
+    d.className = "cheat-item";
+    d.textContent = c;
+    d.addEventListener("click", ()=> {
+      if(!state.thoughts.length){ alert("Сначала добавь мысль."); return; }
       const last = state.thoughts[state.thoughts.length-1];
-      if(last){
-        last.distortions = (last.distortions ? last.distortions + ", " : "") + ch;
-        saveData(state);
-        renderThoughts();
-      } else {
-        alert("Сначала добавь мысль (кнопка '+ Добавить мысль'), потом кликай элементы шпаргалки — они добавятся к последней мысли.");
-      }
+      last.distortions = last.distortions || [];
+      last.distortions.push(c);
+      save(); render();
     });
-    cheatListNode.appendChild(it);
+    cheatList.appendChild(d);
   });
 }
 
-/* ====== Управление: добавить мысль, очистить всё ====== */
-addThoughtBtn.addEventListener("click", ()=>{
-  const n = { id: uid(), text:"", beliefPercent:50, distortions:"", explain:"", rationals:[] };
-  state.thoughts.push(n);
-  saveData(state);
-  renderThoughts();
-  // прокрутить к новой
-  setTimeout(()=>{ const all = document.querySelectorAll(".thought-card"); if(all.length) all[all.length-1].scrollIntoView({behavior:"smooth"}); },150);
-});
+/* ====== Render chat ====== */
+function render(){
+  chatArea.innerHTML = "";
+  if(!state.thoughts || state.thoughts.length === 0){
+    const p = document.createElement("div"); p.className="small"; p.textContent="Пока нет мыслей. Добавь первую справа."; chatArea.appendChild(p); return;
+  }
 
-document.getElementById("clearBtn").addEventListener("click", ()=>{
-  if(!confirm("Очистить все данные (это удалит всё из локального хранилища)?")) return;
-  localStorage.removeItem(STORAGE_KEY);
-  state = {
-    emotions: EMOTIONS.map(name => ({ name, active:false, percent:0 })),
-    thoughts: []
-  };
-  renderAll();
-});
+  state.thoughts.forEach((t, idx) => {
+    // wrapper for group
+    const group = document.createElement("div");
+    group.style.display = "flex";
+    group.style.flexDirection = "column";
+    group.style.gap = "6px";
 
-/* ====== Initial render and save hook ====== */
-function renderAll(){
-  renderEmotions();
-  renderThoughts();
-  renderCheats();
-  saveData(state);
+    // negative bubble (editable on click)
+    const neg = document.createElement("div");
+    neg.className = "chat-message neg";
+    neg.textContent = t.text || "(пустая мысль)";
+    neg.title = "Клик — редактировать / удалить";
+    neg.addEventListener("click", ()=> editThought(idx));
+
+    // percent shown below inside meta row
+    const meta = document.createElement("div");
+    meta.className = "meta-row";
+    const pct = document.createElement("div");
+    pct.textContent = (t.beliefPercent||0) + "%";
+    meta.appendChild(pct);
+
+    // controls: add rational, delete
+    const controls = document.createElement("div");
+    controls.className = "message-controls";
+    const addRat = document.createElement("button");
+    addRat.className = "icon-btn ghost";
+    addRat.textContent = "+ Рационал";
+    addRat.title = "Добавить рациональную мысль";
+    addRat.addEventListener("click", (e)=>{ e.stopPropagation(); addRational(idx); });
+
+    const del = document.createElement("button");
+    del.className = "icon-btn";
+    del.textContent = "Удалить";
+    del.title = "Удалить мысль";
+    del.addEventListener("click", (e)=>{ e.stopPropagation(); if(confirm('Удалить мысль?')){ state.thoughts.splice(idx,1); save(); render(); } });
+
+    controls.appendChild(addRat);
+    controls.appendChild(del);
+    meta.appendChild(controls);
+
+    group.appendChild(neg);
+    group.appendChild(meta);
+
+    // distortions line (if any)
+    if(t.distortions && t.distortions.length){
+      const dline = document.createElement("div");
+      dline.className = "small";
+      dline.style.marginBottom="4px";
+      dline.textContent = "Искажения: " + t.distortions.join(", ");
+      group.appendChild(dline);
+    }
+
+    // rationals (left, editable)
+    if(t.rationals && t.rationals.length){
+      t.rationals.forEach((r, ri) => {
+        const rat = document.createElement("div");
+        rat.className = "chat-message rat";
+        rat.textContent = r.text || "(пусто)";
+        rat.title = "Клик — редактировать рационал";
+        rat.addEventListener("click", ()=> editRational(idx, ri));
+        const rmeta = document.createElement("div");
+        rmeta.className = "meta-row";
+        rmeta.style.justifyContent = "flex-start";
+        const rpct = document.createElement("div");
+        rpct.textContent = (r.percent||0) + "%";
+        rmeta.appendChild(rpct);
+        group.appendChild(rat);
+        group.appendChild(rmeta);
+      });
+    }
+
+    chatArea.appendChild(group);
+  });
 }
 
-/* auto save on unload (extra) */
-window.addEventListener("beforeunload", ()=> saveData(state) );
+/* ====== Actions ====== */
+addBtn.addEventListener("click", ()=>{
+  const text = newText.value.trim();
+  if(!text){ alert("Напиши мысль в поле слева."); newText.focus(); return; }
+  const pct = Math.max(0, Math.min(100, parseInt(newPct.value||0,10)));
+  state.thoughts.push({ id: Date.now().toString(36), text, beliefPercent: pct, distortions: [], rationals: [] });
+  newText.value = ""; newPct.value = 50;
+  save(); render();
+  // scroll to bottom
+  setTimeout(()=> chatArea.lastElementChild?.scrollIntoView({behavior:'smooth'}),100);
+});
 
-/* initial */
-renderAll();
+/* add rational */
+function addRational(thIdx){
+  const text = prompt("Текст рациональной мысли (коротко):");
+  if(text === null) return;
+  const percent = parseInt(prompt("Во сколько процентов веришь в эту рациональную мысль? (0-100)","50")||"50",10);
+  state.thoughts[thIdx].rationals = state.thoughts[thIdx].rationals || [];
+  state.thoughts[thIdx].rationals.push({ id: Date.now().toString(36), text: text.trim(), percent: Math.max(0, Math.min(100, percent||0))});
+  save(); render();
+}
 
+/* edit negative thought */
+function editThought(idx){
+  const t = state.thoughts[idx];
+  const newText = prompt("Изменить негативную мысль:", t.text||"");
+  if(newText === null) return;
+  const newPct = prompt("Во сколько процентов веришь в эту мысль? (0-100)", String(t.beliefPercent||50));
+  if(newPct === null) return;
+  t.text = newText.trim();
+  t.beliefPercent = Math.max(0, Math.min(100, parseInt(newPct||0,10)));
+  save(); render();
+}
+
+/* edit rational */
+function editRational(thIdx, rIdx){
+  const r = state.thoughts[thIdx].rationals[rIdx];
+  const txt = prompt("Изменить рационал:", r.text||"");
+  if(txt === null) return;
+  const pct = prompt("Во сколько процентов веришь в эту рациональную мысль? (0-100)", String(r.percent||50));
+  if(pct === null) return;
+  r.text = txt.trim();
+  r.percent = Math.max(0, Math.min(100, parseInt(pct||0,10)));
+  save(); render();
+}
+
+/* ====== Init ====== */
+renderCheats();
+render();
 </script>
 </body>
 </html>
