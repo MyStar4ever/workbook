@@ -17,33 +17,43 @@
 }
 *{box-sizing:border-box}
 body{
-  margin:0; 
+  margin:0;
   font-family:Inter, "Segoe UI", Roboto, Arial, sans-serif;
-  background:var(--bg); 
-  color:var(--text); 
+  background:var(--bg);
+  color:var(--text);
   -webkit-font-smoothing:antialiased;
-  padding:10px; /* немного отступа от краев */
+  padding:10px; /* от краев окна */
 }
 
 .container{
-  width:100%; 
-  max-width:none; 
-  background:transparent; /* убрали цвет */
-  border-radius:0; /* убрали скругление */
-  padding:0; /* убрали внутренние отступы */
-  box-shadow:none; /* убрали тень */
+  width:100%;
+  max-width:1200px; /* удобно на ПК, чтобы не растягивать слишком */
+  margin:0 auto; /* центрируем на больших экранах */
+  background:transparent; /* без рамки */
+  border-radius:0;
+  padding:0; /* все внутренние отступы будут внутри блоков */
+  box-shadow:none;
 }
 
-/* чат ближе к краям */
-.chat-area{
-  background:rgba(0,0,0,0.04);
-  border-radius:8px; 
-  padding:10px;
+/* grid уже отвечает за колонки */
+.grid{
+  display:grid;
+  grid-template-columns: 1fr 320px; /* мысли + шпаргалка */
+  gap:20px;
 }
-.side-section{
+
+@media(max-width:1000px){
+  .grid{
+    grid-template-columns: 1fr; /* на мобильных одна колонка */
+  }
+}
+
+/* чуть ближе к краям */
+.chat-area, .side-section{
   padding:10px;
   border-radius:8px;
 }
+
 
 
 
