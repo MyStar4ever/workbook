@@ -43,22 +43,14 @@ body{ margin:0; font-family:Inter, sans-serif; background:var(--bg); color:var(-
   position: fixed;
   top: 10px;
   left: 10px;
-  z-index: 1100;
-  width: 40px;
-  height: 40px;
-  font-size: 24px;        /* размер символа */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 6px;
-  border: 1px solid rgba(255,255,255,0.2);
-  background: transparent; /* прозрачная */
-  color: var(--text);
-  font-weight: 600;
-  content: "☰";
-  font-size: 20px;        /* чуть меньше, полоски тоньше */
-  line-height: 1;
+  width: 36px;
+  height: 36px;
+  font-size: 18px; /* тонкие полоски */
+  background: rgba(255,255,255,0.05); /* легкая дымка, не видно границ */
+  border: 1px solid rgba(255,255,255,0.15);
+  backdrop-filter: blur(4px); /* красиво */
 }
+
 
 @media(max-width:800px){ .grid{ grid-template-columns:1fr; } }
  
@@ -77,6 +69,7 @@ body{ margin:0; font-family:Inter, sans-serif; background:var(--bg); color:var(-
   flex: 1;
   overflow-y: auto;
   margin-bottom: 10px; /* чтобы поле ввода не перекрывало сообщения */
+  padding-top: 20px;
 }
 
 .fixed-input {
@@ -166,7 +159,25 @@ body{ margin:0; font-family:Inter, sans-serif; background:var(--bg); color:var(-
   opacity: 1;
 }
 
+@media (max-width: 800px) {
+  .side-section {
+    display: none; /* полностью убрать боковую панель на телефоне */
+  }
+}
 
+.close-distortion {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    font-size: 22px;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: 0.2s;
+}
+
+.close-distortion:hover {
+    opacity: 1;
+}
 
 
 </style>
@@ -204,9 +215,12 @@ body{ margin:0; font-family:Inter, sans-serif; background:var(--bg); color:var(-
   <button id="addBtn" class="icon-btn">Добавить</button>
 </div>
 
-<div id="distortionPanel">
-  <div id="distortionContent"></div>
+<div id="distortionPanel" class="distortion-panel">
+    <div class="close-distortion" onclick="closeDistortionPanel()">✕</div>
+
+    <div id="distortionContent"></div>
 </div>
+
 
 
 <script>
@@ -338,6 +352,10 @@ if(/Android|iPhone/i.test(navigator.userAgent)){
   newPct.value = "";
   save();
   render();
+  if(/Android|iPhone/i.test(navigator.userAgent)){
+    document.activeElement.blur();
+}
+
   newText.blur();
 newPct.blur();
 chatArea.scrollTop = chatArea.scrollHeight;
@@ -544,6 +562,10 @@ function closeDistortionPanel(){
 document.getElementById("distortionPanel").addEventListener("click", e=>{
     if(e.target.id === "distortionPanel") closeDistortionPanel();
 });
+ 
+ function closeDistortionPanel() {
+    document.getElementById("distortionPanel").classList.remove("open");
+}
  
 </script>
 </body>
