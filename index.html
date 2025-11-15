@@ -68,9 +68,9 @@ body{ margin:0; font-family:Inter, sans-serif; background:var(--bg); color:var(-
 
 /* CSS исправленный */
 .chat-area {
-  display: flex;
-  flex-direction: column-reverse; /* новые сообщения снизу */
+  flex: 1;
   overflow-y: auto;
+  display: flex;
 }
 
 .fixed-input {
@@ -151,15 +151,16 @@ body{ margin:0; font-family:Inter, sans-serif; background:var(--bg); color:var(-
   padding: 16px;
   z-index: 5000;
   transition: transform .35s ease, opacity .25s ease;
-
-  transform: translateY(100%); /* панель спрятана */
-  opacity: 0;
 }
 
+#distortionPanel {
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+}
 #distortionPanel.open {
-  transform: translateY(0); /* панель выезжает */
-  opacity: 1;
+  transform: translateY(0);
 }
+
 
 @media(max-width:800px){
   aside.side-section {
@@ -310,7 +311,7 @@ if(!last.distortions.includes(c)) last.distortions.push(c);
 }
   
  function scrollToBottom() {
-  chatArea.scrollTop = 0; // для column-reverse
+  chatArea.scrollTop = 0; 
    setTimeout(scrollToBottom,50);
 }
 
@@ -341,8 +342,16 @@ distortBtn.onclick = (e) => {
 };
 
 controls.appendChild(distortBtn);
- addRat.onclick=e=>{ e.stopPropagation(); addRational(idx); };
-    const del=document.createElement("button"); del.className="icon-btn"; del.textContent="Удалить"; del.onclick=e=>{ e.stopPropagation(); if(confirm("Удалить мысль?")){ chat.thoughts.splice(idx,1); save(); render(); } };
+addBtn.onclick = () => {
+  const chat = getActiveChat();
+  if(!chat) return;
+  chat.thoughts.push({ text: newText.value.trim(), beliefPercent: parseInt(newPct.value)||0 });
+  newText.value=""; newPct.value="";
+  save();
+  render();
+  scrollToBottom();
+};
+
     controls.appendChild(addRat); controls.appendChild(del); meta.appendChild(controls);
 
     group.appendChild(neg); group.appendChild(meta);
@@ -379,7 +388,7 @@ renderChats(); renderCheats(); render();
 
  setTimeout(() => { chatArea.scrollTop = 0;
                    setTimeout(scrollToBottom,50);
-// чат с column-reverse будет прокручен правильно
+
 
 };
 
@@ -518,13 +527,12 @@ toggleCheatsBtn.onclick = () => {
 };
 
 
-function adjustChatPadding() {
-    const panel = document.querySelector(".fixed-input");
-    const chat = document.querySelector(".chat-area");
-    chat.style.paddingBottom = (panel.offsetHeight + 20) + "px";
+function adjustChatPadding(){
+    chatArea.style.paddingBottom = document.querySelector(".fixed-input").offsetHeight + 20 + "px";
 }
-
+window.addEventListener("resize", adjustChatPadding);
 adjustChatPadding();
+
 window.addEventListener("resize", adjustChatPadding);
 
 
@@ -579,9 +587,14 @@ document.getElementById("distortionPanel").addEventListener("click", e=>{
     if(e.target.id === "distortionPanel") closeDistortionPanel();
 });
  
- function closeDistortionPanel() {
+function openDistortionPanel(idx){
+    const panel = document.getElementById("distortionPanel");
+    panel.classList.add("open");
+}
+function closeDistortionPanel(){
     document.getElementById("distortionPanel").classList.remove("open");
 }
+
  
 // скрываем клаву на телефонах
 if(/Android|iPhone/i.test(navigator.userAgent)){
@@ -591,11 +604,12 @@ if(/Android|iPhone/i.test(navigator.userAgent)){
     }, 100); // немного больше задержка
 }
 
-menuBtn.onclick = (e) => {
-  e.stopPropagation(); // чтобы свайпы не вмешивались
+menuBtn.onclick = e => {
+  e.stopPropagation();
   sideDrawer.classList.toggle('open');
   document.querySelector('.grid').classList.toggle('shifted');
 };
+
 
 </script>
 </body>
