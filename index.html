@@ -39,7 +39,27 @@ body{ margin:0; font-family:Inter, sans-serif; background:var(--bg); color:var(-
 .cheat-item{ padding:8px; border-radius:8px; background:rgba(255,255,255,0.02); margin-bottom:8px; cursor:pointer; color:var(--text); }
 .cheat-item:hover{ transform:translateY(-2px); background:rgba(255,255,255,0.03); }
 .note{ color:var(--muted); font-size:13px; margin-top:8px; }
-.menu-btn{ position:fixed; top:10px; left:10px; z-index:1100; }
+.menu-btn {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 1100;
+  width: 40px;
+  height: 40px;
+  font-size: 24px;        /* размер символа */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: transparent; /* прозрачная */
+  color: var(--text);
+  font-weight: 600;
+  content: "☰";
+  font-size: 20px;        /* чуть меньше, полоски тоньше */
+  line-height: 1;
+}
+
 @media(max-width:800px){ .grid{ grid-template-columns:1fr; } }
  
 .side-drawer h3 {
