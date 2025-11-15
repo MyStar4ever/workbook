@@ -49,6 +49,7 @@ body{ margin:0; font-family:Inter, sans-serif; background:var(--bg); color:var(-
   background: rgba(255,255,255,0.05); /* легкая дымка, не видно границ */
   border: 1px solid rgba(255,255,255,0.15);
   backdrop-filter: blur(4px); /* красиво */
+  z-index: 2000;
 }
 
 
@@ -202,7 +203,7 @@ body{ margin:0; font-family:Inter, sans-serif; background:var(--bg); color:var(-
 }
 .section {
   display: flex;
-  flex-direction: column-reverse; /* чтобы сообщения шли сверху вниз */
+  
   height: 100vh; /* весь экран */
   padding-bottom: 80px; /* чтобы панель ввода не перекрывала */
 }
@@ -210,7 +211,7 @@ body{ margin:0; font-family:Inter, sans-serif; background:var(--bg); color:var(-
   flex: 1;
   overflow-y: auto;
   display: flex;
-  flex-direction: column-reverse; /* ВСЁ ВЕРНО для порядка сверху вниз */
+ 
 }
 
 
@@ -309,6 +310,12 @@ if(!last.distortions.includes(c)) last.distortions.push(c);
     cheatList.appendChild(d);
   });
 }
+  
+  function scrollToBottom() {
+    const chatArea = document.getElementById("chatArea");
+    chatArea.scrollTop = chatArea.scrollHeight;
+}
+
 
 /* ====== Render chat messages ====== */
 function render(){
@@ -617,16 +624,17 @@ if(/Android|iPhone/i.test(navigator.userAgent)){
     setTimeout(() => {
         newText.blur();
         newPct.blur();
-        document.activeElement.blur();
-           }, 50);
+    }, 100); // немного больше задержка
 }
 
 
 
-  menuBtn.onclick = () => {
+
+menuBtn.onclick = () => {
   sideDrawer.classList.toggle('open');
   document.querySelector('.grid').classList.toggle('shifted');
 };
+
 
 </script>
 </body>
