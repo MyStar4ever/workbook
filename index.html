@@ -135,7 +135,14 @@ body{ margin:0; font-family:Inter, sans-serif; background:var(--bg); color:var(-
   color: var(--muted);
 }
 
- 
+ #cheatList {
+  transition: max-height 0.3s ease, opacity 0.2s ease;
+  opacity: 0;
+}
+#cheatList.open {
+  opacity: 1;
+}
+
 </style>
 </head>
 <body>
@@ -155,10 +162,12 @@ body{ margin:0; font-family:Inter, sans-serif; background:var(--bg); color:var(-
 
   </div>
   <aside class="side-section">
-    <h3>Шпаргалка — искажения</h3>
-    <div id="cheatList"></div>
-    <div style="margin-top:10px;" class="small">Клик — добавит искажение в последнюю мысль.</div>
-  </aside>
+  <h3>Шпаргалка — искажения</h3>
+  <button id="toggleCheats" class="icon-btn" style="margin-bottom:6px;">Показать / Скрыть</button>
+  <div id="cheatList" style="max-height:0; overflow:hidden; transition:max-height 0.3s ease;"></div>
+  <div style="margin-top:10px;" class="small">Клик — добавит искажение в последнюю мысль.</div>
+</aside>
+
 </div>
 
 
@@ -169,9 +178,7 @@ body{ margin:0; font-family:Inter, sans-serif; background:var(--bg); color:var(-
   <button id="addBtn" class="icon-btn">Добавить</button>
 </div>
 
-<button id="toggleCheats" class="icon-btn" style="margin-bottom:8px;">Шпаргалки</button>
-<div id="cheatList" style="display:none;"></div>
-  
+
 
 <script>
 /* ====== State ====== */
@@ -261,7 +268,7 @@ addBtn.onclick = () => {
   if(!text){ alert("Напиши мысль"); newText.focus(); return; }
 
   let pct = parseInt(newPct.value, 10);
-  if(isNaN(pct)) pct = 50;
+  if(isNaN(pct)) pct = "";
   pct = Math.max(0, Math.min(100, pct));
 
   const chat = getActiveChat();
@@ -285,11 +292,13 @@ addBtn.onclick = () => {
   }
 
   newText.value = "";
-  newPct.value = 50;
+  newPct.value = "";
   save();
   render();
   newText.blur();
 newPct.blur();
+chatArea.scrollTop = chatArea.scrollHeight;
+
 
 
   setTimeout(()=> chatArea.lastElementChild?.scrollIntoView({behavior:'smooth'}),100);
@@ -367,7 +376,7 @@ document.body.addEventListener('touchend', e => {
   editingRational = { thoughtIdx: idx, rationalIdx: rIdx };
   newText.value = ""; 
   newText.placeholder = "Впишите новую рациональную мысль...";
-  newPct.value = 50;
+  newPct.value = "";
   newText.focus();
 }
 
@@ -425,11 +434,36 @@ newChatBtn.onclick = () => {
 let editingRational = null; // null = ввод мысли, иначе {thoughtIdx, rationalIdx}
   
  const toggleCheatsBtn = document.getElementById("toggleCheats");
+const cheatDiv = document.getElementById("cheatList");
+
 toggleCheatsBtn.onclick = () => {
-    const cheatDiv = document.getElementById("cheatList");
-    cheatDiv.style.display = cheatDiv.style.display === "none" ? "block" : "none";
+  if(cheatDiv.classList.contains("open")){
+    cheatDiv.classList.remove("open");
+    cheatDiv.style.maxHeight = "0px";
+  } else {
+    cheatDiv.classList.add("open");
+    cheatDiv.style.maxHeight = cheatDiv.scrollHeight + "px";
+  }
+  adjustChatPadding();
+};
+
+
+function adjustChatPadding() {
+    const panel = document.querySelector(".fixed-input");
+    const chat = document.querySelector(".chat-area");
+    chat.style.paddingBottom = (panel.offsetHeight + 20) + "px";
 }
 
+ window.addEventListener("resize", adjustChatPadding);
+adjustChatPadding();
+
+const origRender = render;
+render = function(...args){
+  origRender.apply(this, args);
+  setTimeout(adjustChatPadding, 50);
+};
+
+  
 </script>
 </body>
 </html>
