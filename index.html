@@ -169,26 +169,52 @@ function editRational(thIdx,rIdx){ const chat=getActiveChat(); const r=chat.thou
 /* ====== Init ====== */
 renderChats(); renderCheats(); render();
 
-/* ====== Drawer swipe ====== */
-let touchStartX = 0;
-let touchEndX = 0;
-const drawerWidth = 200;
+// кнопка меню
+menuBtn.onclick = () => {
+  sideDrawer.classList.toggle('open');
+};
 
-// Свайп с левого края, чтобы открыть
+// свайп
+let touchStartX = 0;
+let touchStartY = 0;
+let touchStartTime = 0;
+
+const SWIPE_THRESHOLD = 150; 
+const SPEED_THRESHOLD = 0.5; 
+const ANGLE_RATIO = 2; // dx должен быть в 2 раза больше dy
+
 document.body.addEventListener('touchstart', e => {
-  if(e.touches[0].clientX < 30 || sideDrawer.classList.contains('open')) {
-    touchStartX = e.touches[0].clientX;
+  const x = e.touches[0].clientX;
+  const y = e.touches[0].clientY;
+  if(x < 30 || sideDrawer.classList.contains('open')) {
+    touchStartX = x;
+    touchStartY = y;
+    touchStartTime = Date.now();
   }
 });
+
 document.body.addEventListener('touchmove', e => {
-  touchEndX = e.touches[0].clientX;
+  // ничего не делаем, просто фиксируем координаты
 });
+
 document.body.addEventListener('touchend', e => {
-  const dx = touchEndX - touchStartX;
-  if(dx > 150) sideDrawer.classList.add('open');      // свайп вправо — открыть
-  if(dx < -150) sideDrawer.classList.remove('open');   // свайп влево — закрыть
-  touchStartX = 0; touchEndX = 0;
+  const x = e.changedTouches[0].clientX;
+  const y = e.changedTouches[0].clientY;
+  const dx = x - touchStartX;
+  const dy = y - touchStartY;
+  const dt = Date.now() - touchStartTime;
+  const speed = Math.abs(dx)/dt;
+
+  if(Math.abs(dx) > Math.abs(dy)*ANGLE_RATIO){
+    if(dx > SWIPE_THRESHOLD || (dx>50 && speed>SPEED_THRESHOLD)) sideDrawer.classList.add('open');
+    else if(dx < -SWIPE_THRESHOLD || (dx<-50 && speed>SPEED_THRESHOLD)) sideDrawer.classList.remove('open');
+  }
+
+  touchStartX = 0;
+  touchStartY = 0;
+  touchStartTime = 0;
 });
+
   
   
 
