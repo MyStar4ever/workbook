@@ -24,7 +24,7 @@ body{ margin:0; font-family:Inter, sans-serif; background:var(--bg); color:var(-
 .input-text{ padding:8px 10px; border-radius:10px; border:1px solid rgba(255,255,255,0.04); background:rgba(255,255,255,0.02); color:var(--text); min-width:220px; }
 .input-num{ width:72px; padding:8px 10px; border-radius:10px; border:1px solid rgba(255,255,255,0.04); background:rgba(255,255,255,0.02); color:var(--text); text-align:center; }
 .grid{ display:grid; grid-template-columns:1fr 320px; gap:20px; transition: margin-left 0.3s; }
-.chat-area{ background:rgba(0,0,0,0.04); border-radius:12px; padding:14px; display:flex; flex-direction:column; gap:12px; max-height:70vh; overflow-y:auto; }
+.chat-area{ background:rgba(0,0,0,0.04); border-radius:12px; padding:14px; display:flex; flex-direction:column; gap:12px; overflow-y:auto; }
 .chat-message{ display:block; max-width:85%; padding:10px 14px; border-radius:14px; word-break:break-word; line-height:1.35; }
 .chat-message.neg { margin-left:auto; background:var(--neg); color:#fff; border-bottom-right-radius:6px; }
 .chat-message.rat { margin-right:auto; background:var(--rat); color:#fff; border-bottom-left-radius:6px; }
@@ -61,7 +61,7 @@ body{ margin:0; font-family:Inter, sans-serif; background:var(--bg); color:var(-
 .section {
   display: flex;
   flex-direction: column;
-  height: 70vh; /* высота чата, можно подстроить */
+  
   position: relative;
 }
 
@@ -118,7 +118,6 @@ body{ margin:0; font-family:Inter, sans-serif; background:var(--bg); color:var(-
 }
 
 .chat-area {
-  max-height: 70vh;
   overflow-y: auto;
   padding-bottom: 80px; /* примерно высота панели + отступ */
 }
@@ -128,13 +127,17 @@ body{ margin:0; font-family:Inter, sans-serif; background:var(--bg); color:var(-
   color: var(--muted);
 }
 
- #cheatList {
-  transition: max-height 0.3s ease, opacity 0.2s ease;
+#cheatList {
+  max-height: 0;
+  overflow: hidden;
   opacity: 0;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
 }
 #cheatList.open {
+  max-height: 500px; /* или cheatDiv.scrollHeight в JS */
   opacity: 1;
 }
+
   
 #distortionPanel {
   position: fixed;
@@ -181,10 +184,6 @@ body{ margin:0; font-family:Inter, sans-serif; background:var(--bg); color:var(-
     opacity: 1;
 }
 
-.chat-area {
-  display: flex;
-  flex-direction: column-reverse; /* ВАЖНО */
-}
 .send-btn {
   background: var(--accent);
   color: #fff;
@@ -196,6 +195,24 @@ body{ margin:0; font-family:Inter, sans-serif; background:var(--bg); color:var(-
   align-items:center;
   justify-content:center;
 }
+  
+  .grid.shifted {
+  margin-left: 200px; /* ширина боковой панели */
+  transition: margin-left 0.3s;
+}
+.section {
+  display: flex;
+  flex-direction: column-reverse; /* чтобы сообщения шли сверху вниз */
+  height: 100vh; /* весь экран */
+  padding-bottom: 80px; /* чтобы панель ввода не перекрывала */
+}
+.chat-area {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column-reverse; /* ВСЁ ВЕРНО для порядка сверху вниз */
+}
+
 
 </style>
 </head>
@@ -231,13 +248,13 @@ body{ margin:0; font-family:Inter, sans-serif; background:var(--bg); color:var(-
   <input id="newThoughtPct" class="input-num" type="number" min="0" max="100" placeholder="На сколько % веришь?" />
   <button id="addBtn" class="icon-btn send-btn">➤</button>
 
-</div>
 
-<div id="distortionPanel" class="distortion-panel">
-    <div class="close-distortion" onclick="closeDistortionPanel()">✕</div>
 
+<div id="distortionPanel">
     <div id="distortionContent"></div>
+    <span class="close-distortion" onclick="closeDistortionPanel()">×</span>
 </div>
+
 
 
 
@@ -285,7 +302,9 @@ function renderCheats(){
       const chat=getActiveChat();
       if(!chat.thoughts.length){ alert("Сначала добавь мысль."); return; }
       const last=chat.thoughts[chat.thoughts.length-1];
-      last.distortions=last.distortions||[]; last.distortions.push(c); save(); render();
+     last.distortions = last.distortions || [];
+if(!last.distortions.includes(c)) last.distortions.push(c);
+ save(); render();
     };
     cheatList.appendChild(d);
   });
@@ -345,7 +364,9 @@ addBtn.onclick = () => {
     const {thoughtIdx, rationalIdx} = editingRational;
     chat.thoughts[thoughtIdx].rationals[rationalIdx].text = text;
     chat.thoughts[thoughtIdx].rationals[rationalIdx].percent = pct;
-    editingRational = null; // возвращаем поле к обычным мыслям
+    editingRational = null; 
+    
+    // возвращаем поле к обычным мыслям
     newText.placeholder = "Опиши автоматическую негативную мысль...";
 if(/Android|iPhone/i.test(navigator.userAgent)){
     newText.blur();
@@ -374,23 +395,19 @@ if(/Android|iPhone/i.test(navigator.userAgent)){
 
   newText.blur();
 newPct.blur();
-chatArea.scrollTop = chatArea.scrollHeight;
-setTimeout(() => {
-    chatArea.scrollTo({ top: 0, behavior: 'smooth' });
-}, 50);
+
 
 
 
 /* ====== Init ====== */
 renderChats(); renderCheats(); render();
 
-
+ setTimeout(() => { chatArea.scrollTop = 0; }, 50);
+// чат с column-reverse будет прокручен правильно
 
 };
 
-// свайп
-// кнопка меню
-menuBtn.onclick = () => sideDrawer.classList.toggle('open');
+
 
 let touchStartX = 0;
 let touchStartY = 0;
@@ -450,9 +467,9 @@ document.body.addEventListener('touchend', e => {
   // переключаем поле ввода на рационал
   editingRational = { thoughtIdx: idx, rationalIdx: rIdx };
   newText.value = ""; 
-  newText.placeholder = "Впишите новую рациональную мысль...";
-  newPct.value = "";
-  newText.focus();
+newText.placeholder = "Впишите новую рациональную мысль...";
+newPct.value = "";
+newText.focus();
 }
 
 
@@ -556,7 +573,8 @@ render = function(...args){
             const chat = getActiveChat();
             const t = chat.thoughts[thoughtIdx];
             t.distortions = t.distortions || [];
-            t.distortions.push(c);
+            if(!t.distortions.includes(c)) t.distortions.push(c);
+
             save();
             render();
         };
@@ -577,12 +595,12 @@ panel.addEventListener("touchstart", e => {
 panel.addEventListener("touchmove", e => {
     const currentY = e.touches[0].clientY;
     const diff = currentY - startY;
-
-    // если тянем вниз больше чем на 60px — закрываем
     if (diff > 60) {
         closeDistortionPanel();
+        e.preventDefault();
     }
 });
+
 
 
 // закрытие свайпом вниз
@@ -600,14 +618,15 @@ if(/Android|iPhone/i.test(navigator.userAgent)){
         newText.blur();
         newPct.blur();
         document.activeElement.blur();
-        window.scrollTo(0,0);
-    }, 50);
+           }, 50);
 }
 
 
-  setTimeout(() => {
-    chatArea.scrollTop = 0;
-}, 20);
+
+  menuBtn.onclick = () => {
+  sideDrawer.classList.toggle('open');
+  document.querySelector('.grid').classList.toggle('shifted');
+};
 
 </script>
 </body>
