@@ -21,15 +21,14 @@
     .side-section { display: none !important; }
     .section { display: flex; flex-direction: column; position: relative; height: 100vh; padding-bottom: 0; }
     
-    /* Скрываем полосу прокрутки в Webkit-браузерах (Chrome, Safari, Opera) */
     .chat-area::-webkit-scrollbar { display: none; }
-    /* Скрываем полосу прокрутки в IE, Edge и Firefox */
     .chat-area { -ms-overflow-style: none; scrollbar-width: none; }
 
+    /* Добавлено принудительное отключение выделения и стандартных действий */
+    body, .chat-message, .chat-message-group, .menu-item { -webkit-user-select: none; user-select: none; cursor: pointer; }
 
     .chat-area{ background:rgba(0,0,0,0.00); padding:14px 14px 80px 14px; display:flex; flex-direction:column; gap:12px; overflow-y:auto; flex: 1; }
     
-    .chat-message-group { cursor: pointer; } 
     .chat-message{ display:block; max-width: 400px; padding:10px 14px; border-radius:14px; word-break:break-word; line-height:1.4; font-size: 15px; }
     .chat-message.neg { margin-left:auto; background:var(--neg); color:#fff; border-bottom-right-radius:6px; }
     .chat-message.rat { margin-right:auto; background:var(--rat); color:#fff; border-bottom-left-radius:6px; }
@@ -133,11 +132,9 @@
     <aside class="side-section"></aside>
   </div>
 
-  <!-- Контекстное меню -->
   <div class="context-menu-overlay" id="contextMenuOverlay"></div>
   <div class="context-menu" id="contextMenu"></div>
 
-  <!-- Модальное окно ввода -->
   <div id="inputModalOverlay"></div>
   <div id="inputModal">
     <div class="input-modal-header">
@@ -194,15 +191,13 @@
       const chat = getActiveChat();
       chatArea.innerHTML = "";
       
-      // Клик на пустое поле чата вызывает меню
       const handleEmptyClick = (e) => {
-          // Убедимся, что клик не на элементе внутри
           if (e.target === chatArea || e.target.classList.contains('note')) {
               openContextMenu(e, null, 'empty');
           }
       };
       chatArea.onclick = handleEmptyClick;
-      chatArea.oncontextmenu = (e) => { e.preventDefault(); handleEmptyClick(e); };
+      /* oncontextmenu блокируется глобальным обработчиком ниже */
 
       if (!chat.thoughts.length) { chatArea.innerHTML = '<div class="note">Пока нет мыслей. Нажмите в любом месте чата, чтобы добавить первую мысль.</div>'; }
 
@@ -211,10 +206,9 @@
         group.className = "chat-message-group";
         group.style.display = "flex"; group.style.flexDirection = "column"; group.style.gap = "4px";
         
-        // Обработчики клика для группы (негативная мысль)
         const handleClickThought = (e) => { e.stopPropagation(); openContextMenu(e, idx, 'thought'); };
         group.onclick = handleClickThought;
-        group.oncontextmenu = (e) => { e.preventDefault(); handleClickThought(e); };
+        /* oncontextmenu блокируется глобальным обработчиком ниже */
 
         const neg = document.createElement("div"); neg.className = "chat-message neg"; neg.textContent = t.text || "(пустая мысль)"; 
         const meta = document.createElement("div"); meta.className = "meta-row";
@@ -234,10 +228,9 @@
             const rGroup = document.createElement("div");
             rGroup.className = "chat-message-group";
             
-            // Обработчики клика для группы (рациональная мысль)
             const handleClickRational = (e) => { e.stopPropagation(); openContextMenu(e, idx, 'rational', ri); };
             rGroup.onclick = handleClickRational;
-            rGroup.oncontextmenu = (e) => { e.preventDefault(); handleClickRational(e); };
+            /* oncontextmenu блокируется глобальным обработчиком ниже */
 
             const rat = document.createElement("div"); rat.className = "chat-message rat"; rat.textContent = r.text || "(пусто)"; 
             const rmeta = document.createElement("div"); rmeta.className = "meta-row rat-meta"; 
@@ -312,7 +305,6 @@
 
 
     /* ====== Input Modal Functions ====== */
-
     function openInputModal(modeType, tIdx = null, rIdx = null) {
         inputModalMode = { type: modeType, tIdx, rIdx };
         inputModalText.value = ''; inputModalPct.value = '';
@@ -329,10 +321,7 @@
         }
 
         inputModalOverlay.classList.add('open'); inputModal.classList.add('open');
-        setTimeout(() => { 
-            inputModalText.focus(); 
-            autoExpandTextarea(inputModalText);
-        }, 300);
+        setTimeout(() => { inputModalText.focus(); autoExpandTextarea(inputModalText); }, 300);
     }
 
     function closeInputModal() {
@@ -365,7 +354,6 @@
       }
     });
     inputModalPct.addEventListener("keydown", function(e) { if (e.key === "Enter") { e.preventDefault(); handleInputModalSubmit(); } });
-
     function autoExpandTextarea(el) { el.style.height = 'auto'; el.style.height = (el.scrollHeight) + 'px'; }
     inputModalText.addEventListener('input', () => autoExpandTextarea(inputModalText));
 
@@ -400,9 +388,10 @@
         mainGrid.classList.remove('shifted', 'content-shifted');
     }
     
-    // При тапе на оверлей чата закрываем меню
+    // Закрытие меню при клике на оверлей чата
     mainGrid.addEventListener('click', (e) => {
         if (sideDrawer.classList.contains('open')) {
+            e.preventDefault(); // Останавливаем все другие действия при закрытии меню
             closeMenu();
         }
     });
@@ -417,7 +406,6 @@
 
     /* ====== Swipe gestures for mobile (Telegram-like) ====== */
     let touchStartX = 0; let touchStartTime = 0;
-    // Свайпы теперь обрабатываются на основном контейнере mainGrid для лучшей работы
     mainGrid.addEventListener('touchstart', e => { touchStartX = e.changedTouches.clientX; touchStartTime = Date.now(); });
     mainGrid.addEventListener('touchend', e => {
         const dx = e.changedTouches.clientX - touchStartX; const dt = Date.now() - touchStartTime; const speed = Math.abs(dx) / dt;
@@ -425,6 +413,12 @@
         if (dx > SWIPE_THRESHOLD || (dx > 50 && speed > SPEED_THRESHOLD)) { if (!sideDrawer.classList.contains('open')) { toggleMenu(); } } 
         else if (dx < -SWIPE_THRESHOLD || (dx < -50 && speed > SPEED_THRESHOLD)) { if (sideDrawer.classList.contains('open')) { closeMenu(); } }
     });
+
+    // Дополнительные глобальные слушатели для блокировки стандартного поведения браузера
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('selectstart', e => e.preventDefault());
+    document.addEventListener('dragstart', e => e.preventDefault());
+
 
     /* ====== Init ====== */
     renderChats(); 
