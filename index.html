@@ -21,8 +21,12 @@
     .side-section { display: none !important; }
     .section { display: flex; flex-direction: column; position: relative; height: 100vh; padding-bottom: 0; }
     
-    .chat-area::-webkit-scrollbar { display: none; }
-    .chat-area { -ms-overflow-style: none; scrollbar-width: none; }
+.chat-area {
+  overflow-y: scroll; /* или auto */
+  scrollbar-width: none; /* Firefox */
+}
+.chat-area::-webkit-scrollbar { width: 0; height: 0; }
+
 
     body, .chat-message, .chat-message-group, .menu-item { -webkit-user-select: none; user-select: none; cursor: pointer; }
 
@@ -97,7 +101,7 @@
     .input-modal-header { display: flex; justify-content: space-between; align-items: center; }
     .input-modal-actions { display: flex; gap: 8px; }
     .input-modal-text {
-      padding:8px 10px; border-radius:10px; border:1px solid rgba(255,255,255,0.00); background:rgba(255,255,255,0.02); color:var(--text); width: 100%;
+      padding:8px 10px; border-radius:10px; border:none); background:rgba(255,255,255,0.02); color:var(--text); width: 100%;
       resize: none; overflow-y: auto; max-height: 150px; transition: height 0.1s ease-out; box-sizing: border-box;
       font-size: 15px;
     }
@@ -400,10 +404,11 @@
     
     // Закрытие меню при клике на оверлей чата
     mainGrid.addEventListener('click', (e) => {
-        if (sideDrawer.classList.contains('open')) {
-            e.preventDefault();
-            closeMenu();
-        }
+        if(sideDrawer.classList.contains('open') &&           e.target.closest('#sideDrawer') === null){
+    e.preventDefault();
+    e.stopPropagation();
+    closeMenu();
+}
     });
 
 
@@ -436,6 +441,11 @@
     /* ====== Init ====== */
     renderChats(); 
     render();
+    
+    function scrollToBottom() {
+  chatArea.scrollTo({ top: chatArea.scrollHeight, behavior: 'smooth' });
+}
+
   </script>
 </body>
 </html>
