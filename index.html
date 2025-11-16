@@ -213,16 +213,18 @@
 
       if (!chat.thoughts.length) { chatArea.innerHTML = '<div class="note">Пока нет мыслей. Нажмите в любом месте чата, чтобы добавить первую мысль.</div>'; }
 
-      chat.thoughts.forEach((t, idx) => {
+     chat.thoughts.forEach((t, idx) => {
     const group = document.createElement("div"); 
     group.className = "chat-message-group";
     group.style.display = "flex"; 
     group.style.flexDirection = "column"; 
     group.style.gap = "4px";
 
+    // Мысль
     const neg = document.createElement("div"); 
     neg.className = "chat-message neg"; 
-    neg.textContent = t.text || "(пустая мысль)"; 
+    neg.textContent = t.text || "(пустая мысль)";
+    attachTouchAndClick(neg, 'thought', idx); // вешаем клик и долгий тап
 
     const meta = document.createElement("div"); 
     meta.className = "meta-row";
@@ -230,6 +232,10 @@
     pct.textContent = (t.beliefPercent || 0) + "%"; 
     meta.appendChild(pct);
 
+    group.appendChild(neg); 
+    group.appendChild(meta);
+
+    // Искажения
     if (t.distortions && t.distortions.length) { 
         const dline = document.createElement("div"); 
         dline.className = "distortion-line neg-dist"; 
@@ -237,17 +243,7 @@
         group.appendChild(dline);
     }
 
-    group.appendChild(neg); 
-    group.appendChild(meta);
-
-    // Обработчик для мысли
-  neg.addEventListener('click', (e) => {
-    e.preventDefault();
-    e.stopPropagation(); // блокируем всплытие
-    openContextMenu(e, idx, 'thought');
-});
-
-    // Рационалы
+    // Рационалы внутри мысли
     if (t.rationals && t.rationals.length) { 
         t.rationals.forEach((r, ri) => { 
             const rGroup = document.createElement("div");
@@ -256,19 +252,13 @@
             const rat = document.createElement("div"); 
             rat.className = "chat-message rat"; 
             rat.textContent = r.text || "(пусто)"; 
+            attachTouchAndClick(rat, 'rational', idx, ri);
 
             const rmeta = document.createElement("div"); 
             rmeta.className = "meta-row rat-meta"; 
             const rpct = document.createElement("div"); 
             rpct.textContent = (r.percent || 0) + "%"; 
             rmeta.appendChild(rpct);
-
-            // Обработчик для рационала
-           rat.addEventListener('click', (e) => {
-    e.preventDefault();
-    e.stopPropagation(); // блокируем всплытие
-    openContextMenu(e, idx, 'rational', ri);
-});
 
             rGroup.appendChild(rat);
             rGroup.appendChild(rmeta);
@@ -278,6 +268,23 @@
 
     chatArea.appendChild(group);
 });
+
+      function attachTouchAndClick(el, type, tIdx, rIdx = null) {
+    el.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        openContextMenu(e, tIdx, type, rIdx);
+    });
+
+    let touchTimer;
+    el.addEventListener('touchstart', (e) => {
+        touchTimer = setTimeout(() => {
+            openContextMenu({ clientX: e.touches[0].clientX, clientY: e.touches[0].clientY }, tIdx, type, rIdx);
+        }, 500);
+    });
+    el.addEventListener('touchend', () => clearTimeout(touchTimer));
+}
+
   
       
       // Инициация прокрутки после того, как элементы добавлены
@@ -488,6 +495,18 @@ chatArea.addEventListener('contextmenu', (e) => {
 });
 
 
+let touchTimer;
+
+chatArea.addEventListener('touchstart', (e) => {
+  touchTimer = setTimeout(() => {
+    if (!e.target.closest('.chat-message') && !e.target.closest('.chat-message-group')) {
+      const touch = e.touches[0];
+      openContextMenu({ clientX: touch.clientX, clientY: touch.clientY }, null, 'empty'); // пустое меню
+    }
+  }, 500); // долгий тап ~500ms
+});
+
+    
 
 
   </script>
