@@ -214,67 +214,71 @@
       if (!chat.thoughts.length) { chatArea.innerHTML = '<div class="note">Пока нет мыслей. Нажмите в любом месте чата, чтобы добавить первую мысль.</div>'; }
 
       chat.thoughts.forEach((t, idx) => {
-        const group = document.createElement("div"); 
-        group.className = "chat-message-group";
-        group.style.display = "flex"; group.style.flexDirection = "column"; group.style.gap = "4px";
-        
-        const handleClickThought = (e) => { e.stopPropagation(); openContextMenu(e, idx, 'thought'); };
-        
-        
+    const group = document.createElement("div"); 
+    group.className = "chat-message-group";
+    group.style.display = "flex"; 
+    group.style.flexDirection = "column"; 
+    group.style.gap = "4px";
 
+    const neg = document.createElement("div"); 
+    neg.className = "chat-message neg"; 
+    neg.textContent = t.text || "(пустая мысль)"; 
 
-        /* oncontextmenu блокируется глобальным обработчиком ниже */
+    const meta = document.createElement("div"); 
+    meta.className = "meta-row";
+    const pct = document.createElement("div"); 
+    pct.textContent = (t.beliefPercent || 0) + "%"; 
+    meta.appendChild(pct);
 
-        const neg = document.createElement("div"); neg.className = "chat-message neg"; neg.textContent = t.text || "(пустая мысль)"; 
-        const meta = document.createElement("div"); meta.className = "meta-row";
-        const pct = document.createElement("div"); pct.textContent = (t.beliefPercent || 0) + "%"; meta.appendChild(pct);
-        
-        group.appendChild(neg); group.appendChild(meta);
+    if (t.distortions && t.distortions.length) { 
+        const dline = document.createElement("div"); 
+        dline.className = "distortion-line neg-dist"; 
+        dline.textContent = "Искажения: " + t.distortions.join(", "); 
+        group.appendChild(dline);
+    }
 
-        if (t.distortions && t.distortions.length) { 
-            const dline = document.createElement("div"); 
-            dline.className = "distortion-line neg-dist"; 
-            dline.textContent = "Искажения: " + t.distortions.join(", "); 
-            group.insertBefore(dline, meta);
-        }
-        
-        if (t.rationals && t.rationals.length) { 
-          t.rationals.forEach((r, ri) => { 
+    group.appendChild(neg); 
+    group.appendChild(meta);
+
+    // Обработчик для мысли
+  neg.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation(); // блокируем всплытие
+    openContextMenu(e, idx, 'thought');
+});
+
+    // Рационалы
+    if (t.rationals && t.rationals.length) { 
+        t.rationals.forEach((r, ri) => { 
             const rGroup = document.createElement("div");
             rGroup.className = "chat-message-group";
-            
-            const handleClickRational = (e) => { e.stopPropagation(); openContextMenu(e, idx, 'rational', ri); };
-            
-           neg.addEventListener('click', (e) => { 
-    e.preventDefault();
-    e.stopPropagation(); 
-    openContextMenu(e, idx, 'thought'); 
-});
-            
-            
 
-           
-            /* oncontextmenu блокируется глобальным обработчиком ниже */
+            const rat = document.createElement("div"); 
+            rat.className = "chat-message rat"; 
+            rat.textContent = r.text || "(пусто)"; 
 
-            const rat = document.createElement("div"); rat.className = "chat-message rat"; rat.textContent = r.text || "(пусто)"; 
-            const rmeta = document.createElement("div"); rmeta.className = "meta-row rat-meta"; 
-           rat.addEventListener('click', (e) => { 
+            const rmeta = document.createElement("div"); 
+            rmeta.className = "meta-row rat-meta"; 
+            const rpct = document.createElement("div"); 
+            rpct.textContent = (r.percent || 0) + "%"; 
+            rmeta.appendChild(rpct);
+
+            // Обработчик для рационала
+           rat.addEventListener('click', (e) => {
     e.preventDefault();
-    e.stopPropagation(); 
-    openContextMenu(e, idx, 'rational', ri); 
+    e.stopPropagation(); // блокируем всплытие
+    openContextMenu(e, idx, 'rational', ri);
 });
 
-            const rpct = document.createElement("div"); rpct.textContent = (r.percent || 0) + "%"; 
-            rmeta.appendChild(rpct); 
             rGroup.appendChild(rat);
             rGroup.appendChild(rmeta);
             group.appendChild(rGroup);
-          }); 
-        }
-        chatArea.appendChild(group);
-      });
-      
-      
+        }); 
+    }
+
+    chatArea.appendChild(group);
+});
+  
       
       // Инициация прокрутки после того, как элементы добавлены
       setTimeout(scrollToBottom, 50); 
@@ -475,11 +479,14 @@ mainGrid.addEventListener('touchend', e => {
   chatArea.scrollTo({ top: chatArea.scrollHeight, behavior: 'smooth' });
 }
     
-chatArea.addEventListener('click', (e) => {
+chatArea.addEventListener('contextmenu', (e) => {
+    e.preventDefault();
+    // если клик не на мысли или рационале
     if (!e.target.closest('.chat-message') && !e.target.closest('.chat-message-group')) {
         openContextMenu(e, null, 'empty');
     }
 });
+
 
 
 
