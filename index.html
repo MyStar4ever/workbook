@@ -202,18 +202,9 @@
       const chat = getActiveChat();
       chatArea.innerHTML = "";
       
-      const handleEmptyClick = (e) => {
-          // Проверяем, что клик именно по фону чата, а не по его содержимому
-          if (e.target === chatArea || e.target.classList.contains('note')) {
-              openContextMenu(e, null, 'empty');
-          }
-      };
+   
       
- chatArea.onclick = (e) => {
-  if(e.target === chatArea || e.target.classList.contains('note')){
-      openContextMenu(e, null, 'empty');
-  }
-};
+ 
 
 
 
@@ -228,6 +219,8 @@
         group.style.display = "flex"; group.style.flexDirection = "column"; group.style.gap = "4px";
         
         const handleClickThought = (e) => { e.stopPropagation(); openContextMenu(e, idx, 'thought'); };
+        
+        
 
 
         /* oncontextmenu блокируется глобальным обработчиком ниже */
@@ -251,11 +244,26 @@
             rGroup.className = "chat-message-group";
             
             const handleClickRational = (e) => { e.stopPropagation(); openContextMenu(e, idx, 'rational', ri); };
+            
+           neg.addEventListener('click', (e) => { 
+    e.preventDefault();
+    e.stopPropagation(); 
+    openContextMenu(e, idx, 'thought'); 
+});
+            
+            
+
            
             /* oncontextmenu блокируется глобальным обработчиком ниже */
 
             const rat = document.createElement("div"); rat.className = "chat-message rat"; rat.textContent = r.text || "(пусто)"; 
             const rmeta = document.createElement("div"); rmeta.className = "meta-row rat-meta"; 
+           rat.addEventListener('click', (e) => { 
+    e.preventDefault();
+    e.stopPropagation(); 
+    openContextMenu(e, idx, 'rational', ri); 
+});
+
             const rpct = document.createElement("div"); rpct.textContent = (r.percent || 0) + "%"; 
             rmeta.appendChild(rpct); 
             rGroup.appendChild(rat);
@@ -265,6 +273,8 @@
         }
         chatArea.appendChild(group);
       });
+      
+      
       
       // Инициация прокрутки после того, как элементы добавлены
       setTimeout(scrollToBottom, 50); 
@@ -450,12 +460,8 @@ mainGrid.addEventListener('touchend', e => {
 });
 
 
-    // Дополнительные глобальные слушатели для блокировки стандартного поведения браузера
-   document.addEventListener('contextmenu', e => {
-    if (!e.target.closest('.chat-message') && !e.target.closest('.note')) {
-        e.preventDefault();
-    }
-});
+
+
 
     document.addEventListener('selectstart', e => e.preventDefault());
     document.addEventListener('dragstart', e => e.preventDefault());
@@ -468,6 +474,14 @@ mainGrid.addEventListener('touchend', e => {
     function scrollToBottom() {
   chatArea.scrollTo({ top: chatArea.scrollHeight, behavior: 'smooth' });
 }
+    
+chatArea.addEventListener('click', (e) => {
+    if (!e.target.closest('.chat-message') && !e.target.closest('.chat-message-group')) {
+        openContextMenu(e, null, 'empty');
+    }
+});
+
+
 
   </script>
 </body>
