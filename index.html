@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <meta charset="utf-8" />
   <title>Дневник эмоций с выезжающим меню</title>
@@ -16,14 +15,38 @@
       --accent:#4A90E2;
     }
     body{ margin:0; font-family:Inter, sans-serif; background:var(--bg); color:var(--text); overflow-x:hidden; }
+    body.menu-open { overflow: hidden; } /* Запрет скролла при открытом меню */
     .container{ max-width:1200px; margin:0 auto; padding:10px; }
-    .header{ display:flex; flex-direction:column; gap:10px; margin-bottom:10px; }
-    .add-row{ display:flex; gap:8px; flex-wrap:wrap; }
-    .input-text{ padding:8px 10px; border-radius:10px; border:1px solid rgba(255,255,255,0.04); background:rgba(255,255,255,0.02); color:var(--text); min-width:220px; }
-    .input-num{ width:72px; padding:8px 10px; border-radius:10px; border:1px solid rgba(255,255,255,0.04); background:rgba(255,255,255,0.02); color:var(--text); text-align:center; }
-    .grid{ display:grid; grid-template-columns:1fr 320px; gap:20px; transition: margin-left 0.3s; }
+    
+    .input-text{ 
+      padding:8px 10px; border-radius:10px; border:1px solid rgba(255,255,255,0.04); background:rgba(255,255,255,0.02); color:var(--text); min-width:220px; 
+      resize: none;
+      overflow-y: auto;
+      max-height: 150px;
+      transition: height 0.1s ease-out;
+      flex-grow: 1;
+    }
+    .input-num{ 
+      width:72px; padding:8px 10px; border-radius:10px; border:1px solid rgba(255,255,255,0.04); background:rgba(255,255,255,0.02); color:var(--text); text-align:center; 
+    }
+    .input-num::-webkit-outer-spin-button,
+    .input-num::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    .input-num[type=number] {
+        -moz-appearance: textfield;
+        appearance: textfield;
+    }
+
+    /* На ПК убираем правую колонку (она пустая) и центрируем чат */
+    .grid{ display:grid; grid-template-columns:1fr; gap:0; transition: margin-left 0.3s; max-width: 800px; margin: 0 auto; }
+    .side-section { display: none !important; }
+
     .chat-area{ background:rgba(0,0,0,0.04); border-radius:12px; padding:14px; display:flex; flex-direction:column; gap:12px; overflow-y:auto; flex: 1; }
-    .chat-message{ display:block; max-width:85%; padding:10px 14px; border-radius:14px; word-break:break-word; line-height:1.35; }
+    
+    /* Ограничиваем ширину сообщений на ПК */
+    .chat-message{ display:block; max-width: 400px; padding:10px 14px; border-radius:14px; word-break:break-word; line-height:1.35; }
     .chat-message.neg { margin-left:auto; background:var(--neg); color:#fff; border-bottom-right-radius:6px; }
     .chat-message.rat { margin-right:auto; background:var(--rat); color:#fff; border-bottom-left-radius:6px; }
     .meta-row{ display:flex; gap:8px; align-items:center; justify-content:flex-end; margin-top:6px; color:var(--muted); font-size:12px; }
@@ -49,7 +72,7 @@
       z-index: 2000;
       cursor: pointer;
     }
-    @media(max-width:800px){ .grid{ grid-template-columns:1fr; } }
+
     .side-drawer h3 { margin-left: 0; }
     .section { display: flex; flex-direction: column; position: relative; height: 100vh; padding-bottom: 80px; }
     
@@ -60,7 +83,6 @@
       transform: translateX(-50%);
       display: flex;
       gap: 8px;
-      flex-wrap: wrap;
       background: var(--card);
       padding: 12px 16px;
       border-radius: 16px;
@@ -68,58 +90,28 @@
       z-index: 2000;
       max-width: 95%;
       min-width: 320px;
+      align-items: flex-end;
+      width: calc(100% - 32px); /* Чтобы панель ввода была адаптивной */
+      max-width: 780px; /* Ограничение ширины панели ввода на ПК */
     }
-    .input-text { max-height: 150px; overflow-y: auto; flex-grow: 1; }
-    .input-num { width: 70px; padding: 8px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.04); background: rgba(255,255,255,0.02); color: var(--muted); text-align: center; font-size: 12px; }
-    .input-num::placeholder { font-size: 12px; color: var(--muted); }
 
     #distortionPanel {
-      position: fixed;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      height: 60vh;
-      background: var(--card);
-      border-top-left-radius: 16px;
-      border-top-right-radius: 16px;
-      box-shadow: 0 -4px 15px rgba(0,0,0,0.4);
-      padding: 16px;
-      z-index: 5000;
-      transform: translateY(100%);
-      transition: transform 0.3s ease;
-      overflow-y: auto;
+      position: fixed; left: 0; right: 0; bottom: 0; height: 60vh; background: var(--card);
+      border-top-left-radius: 16px; border-top-right-radius: 16px; box-shadow: 0 -4px 15px rgba(0,0,0,0.4);
+      padding: 16px; z-index: 5000; transform: translateY(100%); transition: transform 0.3s ease; overflow-y: auto;
     }
     #distortionPanel.open { transform: translateY(0); }
-    .close-distortion {
-        position: absolute;
-        top: 8px;
-        right: 12px;
-        font-size: 22px;
-        cursor: pointer;
-        opacity: 0.7;
-        transition: 0.2s;
-    }
+    .close-distortion { position: absolute; top: 8px; right: 12px; font-size: 22px; cursor: pointer; opacity: 0.7; transition: 0.2s; }
     .close-distortion:hover { opacity: 1; }
-    .send-btn {
-      background: var(--accent);
-      color: #fff;
-      border-radius: 50%;
-      width: 42px;
-      height: 42px;
-      font-size: 20px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      border: none;
-      cursor: pointer;
-    }
-    .grid.shifted { margin-left: 220px; }
+    .send-btn { background: var(--accent); color: #fff; border-radius: 50%; width: 42px; height: 42px; font-size: 20px; display:flex; align-items:center; justify-content:center; border: none; cursor: pointer; }
     
+    /* Адаптивность для мобильных устройств (ширина до 800px) */
     @media(max-width:800px){ 
-      .grid { grid-template-columns: 1fr; margin-left: 0 !important; }
+      .grid { max-width: 100%; margin: 0; }
+      .chat-message { max-width: 85%; }
+      .fixed-input { max-width: 95%; }
       .grid.shifted { margin-left: 220px !important; }
     }
-    .side-section { display: none !important; }
   </style>
 </head>
 <body>
@@ -141,6 +133,7 @@
     <div class="section">
         <div id="chatArea" class="chat-area" aria-live="polite"></div>
     </div>
+    <aside class="side-section"></aside>
   </div>
 
   <!-- Фиксированная панель ввода -->
@@ -184,10 +177,7 @@
             item.textContent = chat.name;
             item.onclick = () => {
                 state.activeChatId = chat.id;
-                save();
-                renderChats();
-                renderUI();
-                closeMenu();
+                save(); renderChats(); renderUI(); closeMenu();
             };
             chatListArea.appendChild(item);
         });
@@ -261,6 +251,7 @@
       render();
       newText.value = "";
       newPct.value = "";
+      autoExpandTextarea(newText);
     }
     
     function addRational(idx) {
@@ -276,6 +267,7 @@
       newText.placeholder = "Впишите новую рациональную мысль...";
       newPct.value = "";
       newText.focus();
+      autoExpandTextarea(newText);
     }
 
     function editThought(idx){
@@ -332,19 +324,26 @@
     function toggleMenu() {
         sideDrawer.classList.toggle("open");
         mainGrid.classList.toggle("shifted");
+        document.body.classList.toggle('menu-open', sideDrawer.classList.contains('open'));
     }
 
     function closeMenu() {
         sideDrawer.classList.remove("open");
         mainGrid.classList.remove("shifted");
+        document.body.classList.remove('menu-open');
     }
     
     function adjustChatPadding(){
-        // Убедимся, что .fixed-input найден
         const fixedInputEl = document.querySelector(".fixed-input");
         if(fixedInputEl) {
             chatArea.style.paddingBottom = fixedInputEl.offsetHeight + 20 + "px";
         }
+    }
+
+    function autoExpandTextarea(el) {
+        el.style.height = 'auto';
+        el.style.height = (el.scrollHeight) + 'px';
+        adjustChatPadding();
     }
 
     /* ====== Event Listeners ====== */
@@ -360,19 +359,62 @@
     openDistBtn.onclick = openDistortionPanelForLast;
     menuBtn.onclick = toggleMenu;
     window.addEventListener("resize", adjustChatPadding);
-    
+    newText.addEventListener('input', () => autoExpandTextarea(newText));
+
+    // Логика Enter: фокус -> отправка
     newText.addEventListener("keydown", function(e) {
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
-        addThoughtOrRational();
+        if (newPct.value.trim() === "" && document.activeElement === newText) {
+          newPct.focus(); // Переводим фокус на %
+        } else {
+          addThoughtOrRational(); // Отправляем
+        }
       }
     });
+
+    newPct.addEventListener("keydown", function(e) {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            addThoughtOrRational(); // Отправляем из поля %
+        }
+    });
+
+    /* ====== Swipe gestures for mobile (Telegram-like) ====== */
+    let touchStartX = 0;
+    let touchStartTime = 0;
+
+    document.body.addEventListener('touchstart', e => {
+        touchStartX = e.changedTouches[0].clientX;
+        touchStartTime = Date.now();
+    });
+
+    document.body.addEventListener('touchend', e => {
+        const dx = e.changedTouches[0].clientX - touchStartX;
+        const dt = Date.now() - touchStartTime;
+        const speed = Math.abs(dx) / dt;
+        const SWIPE_THRESHOLD = 100;
+        const SPEED_THRESHOLD = 0.3;
+
+        // Открытие свайпом вправо (если меню закрыто)
+        if (dx > SWIPE_THRESHOLD || (dx > 50 && speed > SPEED_THRESHOLD)) {
+            if (!sideDrawer.classList.contains('open')) {
+                toggleMenu();
+            }
+        } 
+        // Закрытие свайпом влево (если меню открыто)
+        else if (dx < -SWIPE_THRESHOLD || (dx < -50 && speed > SPEED_THRESHOLD)) {
+            if (sideDrawer.classList.contains('open')) {
+                closeMenu();
+            }
+        }
+    });
+
 
     /* ====== Init ====== */
     adjustChatPadding();
     renderChats(); 
     render();
-
   </script>
 </body>
 </html>
