@@ -13,6 +13,7 @@
       --rat:#3b3d42;
       --text:#e6e6e6;
       --accent:#4A90E2;
+      --input-bg: rgba(255,255,255,0.08); /* Новый цвет для инпута */
     }
     body{ margin:0; font-family:Inter, sans-serif; background:var(--bg); color:var(--text); overflow-x:hidden; }
     body.menu-open { overflow: hidden; }
@@ -24,17 +25,29 @@
 .chat-area {
   overflow-y: scroll; /* или auto */
   scrollbar-width: none; /* Firefox */
+  padding-bottom: 80px; /* Дополнительный отступ снизу для новой кнопки */
 }
 .chat-area::-webkit-scrollbar { width: 0; height: 0; }
 
 
-    body, .chat-message, .chat-message-group, .menu-item { -webkit-user-select: none; user-select: none; cursor: pointer; }
+    /* Убрал user-select: none с body, чтобы можно было выделять текст в инпуте */
+    .chat-message, .chat-message-group, .menu-item { cursor: pointer; } 
 
-    .chat-area{ background:rgba(0,0,0,0.00); padding:14px 14px 80px 14px; display:flex; flex-direction:column; gap:12px; overflow-y:auto; flex: 1; }
+    .chat-area{ background:rgba(0,0,0,0.00); padding:40px 14px 80px; display:flex; flex-direction:column; gap:12px; overflow-y:auto; flex: 1; }
     
-    .chat-message{ display:block; max-width: 400px; padding:10px 14px; border-radius:14px; word-break:break-word; line-height:1.4; font-size: 15px; }
+    .chat-message{ 
+        display:block; 
+        max-width: 400px; 
+        padding:10px 14px; 
+        border-radius:14px; 
+        word-break:break-word; 
+        line-height:1.4; 
+        font-size: 15px;
+        position: relative; /* Чтобы позиционировать процент */
+        padding-bottom: 12px; /* Увеличил паддинг для процента */
+    }
     .chat-message.neg { margin-left:auto; background:var(--neg); color:#fff; border-bottom-right-radius:6px; }
-    .chat-message.rat { margin-right:auto; background:var(--rat); color:#fff; border-bottom-left-radius:6px; }
+    .chat-message.rat { margin-right:auto; background:var(--rat); color:#fff; border-bottom-left-radius:6px; max-width: 50%; } /* Установил max-width и для рационалов */
     .meta-row{ display:flex; gap:8px; align-items:center; justify-content:flex-end; margin-top:6px; color:var(--muted); font-size:12px; }
     .meta-row.rat-meta { justify-content: flex-start; }
     .distortion-line { color:var(--muted); font-size:12px; margin-top: 4px; margin-bottom: 4px; }
@@ -53,7 +66,7 @@
     font-size:13px; 
     padding: 14px; 
     text-align: center; 
-    margin-top: 30px; /* отступ сверху для первого сообщения */
+    margin-top: 80px; /* отступ сверху для первого сообщения */
 }
 
     .menu-btn { position: fixed; top: 10px; left: 10px; width: 36px; height: 36px; font-size: 18px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); backdrop-filter: blur(4px); z-index: 2000; cursor: pointer; }
@@ -79,7 +92,7 @@
 
     @media(max-width:800px){ 
       .grid, .grid.shifted { max-width: 100vw; margin: 0; transform: translateX(0); }
-      .chat-message { max-width: 85%; }
+      /* max-width убираем отсюда, т.к. он уже в .chat-message */
       .content-shifted { transform: translateX(220px) !important; }
     }
 
@@ -107,18 +120,50 @@
     }
 
     .input-modal-header { display: flex; justify-content: space-between; align-items: center; }
-    .input-modal-actions { display: flex; gap: 8px; }
+    .input-modal-actions { display: flex; gap: 8px; align-items: center; } /* Добавил align-items */
     .input-modal-text {
-      padding:8px 10px; border-radius:10px; border:none); background:rgba(255,255,255,0.02); color:var(--text); width: 100%;
+      padding:8px 10px; border-radius:10px; border:none; background:var(--input-bg); color:var(--text); width: 100%;
       resize: none; overflow-y: auto; max-height: 150px; transition: height 0.1s ease-out; box-sizing: border-box;
       font-size: 15px;
     }
     .input-modal-num {
-      width:70px; padding:8px 10px; border-radius:10px; border:1px solid rgba(255,255,255,0.04); background:rgba(255,255,255,0.02); color:var(--text); text-align:center;
+      width:70px; padding:8px 10px; border-radius:10px; border:1px solid rgba(255,255,255,0.04); background:var(--input-bg); color:var(--text); text-align:center;
       -webkit-appearance: none; appearance: none;
     }
     .input-modal-num::-webkit-outer-spin-button, .input-modal-num::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
+    /* Стиль для процента внутри сообщения */
+    .belief-percent {
+        position: absolute;
+        bottom: 2px;
+        right: 8px;
+        font-size: 10px;
+        color: rgba(255, 255, 255, 0.7);
+    }
+    .chat-message.rat .belief-percent {
+        right: auto;
+        left: 8px;
+    }
+
+    /* Стиль для кнопки добавления новой мысли внизу чата */
+    #newThoughtBtn {
+        position: fixed;
+        bottom: 16px;
+        right: 16px;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: var(--accent);
+        color: white;
+        font-size: 24px;
+        border: none;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        z-index: 100;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
   </style>
 </head>
 <body>
@@ -139,6 +184,7 @@
   <div class="grid" id="mainGrid">
     <div class="section">
         <div id="chatArea" class="chat-area" aria-live="polite"></div>
+        <button id="newThoughtBtn" onclick="openInputModal('newThought')">+</button>
     </div>
     <aside class="side-section"></aside>
   </div>
@@ -155,165 +201,187 @@
             <button id="inputModalSendBtn" class="icon-btn send-btn">➤</button>
         </div>
     </div>
-    <textarea id="inputModalText" class="input-modal-text" placeholder="Опиши мысль..." rows="3"></textarea>
+    <textarea id="inputModalText" class="input-modal-text" rows="1"></textarea>
   </div>
 
 
   <script>
-    /* ====== State ====== */
-    const STORAGE_KEY = "diary_chat_v3";
-    const CHEATS = ["Катастрофизация", "Чтение мыслей", "Чёрно-белое мышление", "Эмоциональное обоснование", "Долженствование", "Обесценивание положительного", "Генерализация", "Персонализация", "Фильтрация отрицательного", "Завышенные стандарты"];
-    let state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || { chats: [{ id: "chat1", name: "Чат 1", thoughts: [] }], activeChatId: "chat1" };
-    let inputModalMode = { type: 'newThought', tIdx: null, rIdx: null }; 
-
-    /* ====== UI elements ====== */
+    // --- Декларации DOM элементов (в начале скрипта) ---
     const chatArea = document.getElementById("chatArea");
     const sideDrawer = document.getElementById("sideDrawer");
     const menuBtn = document.getElementById("menuBtn");
-    const mainGrid = document.getElementById("mainGrid");
+    const newChatBtn = document.getElementById("newChatBtn");
     const chatListArea = document.getElementById("chatListArea");
-    const distortionPanel = document.getElementById("distortionPanel");
     const distortionContent = document.getElementById("distortionContent");
-    const contextMenu = document.getElementById("contextMenu");
+    const distortionPanel = document.getElementById("distortionPanel");
     const contextMenuOverlay = document.getElementById("contextMenuOverlay");
-    const inputModal = document.getElementById("inputModal");
+    const contextMenu = document.getElementById("contextMenu");
     const inputModalOverlay = document.getElementById("inputModalOverlay");
+    const inputModal = document.getElementById("inputModal");
+    const inputModalTitle = document.getElementById("inputModalTitle");
     const inputModalText = document.getElementById("inputModalText");
     const inputModalPct = document.getElementById("inputModalPct");
     const inputModalSendBtn = document.getElementById("inputModalSendBtn");
-    const inputModalTitle = document.getElementById("inputModalTitle");
+    // const newThoughtBtn = document.getElementById("newThoughtBtn"); // Already declared in HTML onclick
 
-    function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
-    function getActiveChat() { return state.chats.find(c => c.id === state.activeChatId); }
+    let inputModalMode = {};
+    let chats = [];
+    let activeChatId = null;
 
-    /* ====== Render functions ====== */
-    function renderChats() {
-        chatListArea.innerHTML = "";
-        state.chats.forEach(chat => {
-            const item = document.createElement("div");
-            item.className = `chat-item ${chat.id === state.activeChatId ? 'active' : ''}`;
-            item.textContent = chat.name;
-            item.onclick = () => { state.activeChatId = chat.id; save(); renderChats(); renderUI(); closeMenu(); };
-            chatListArea.appendChild(item);
-        });
+    // Ваши когнитивные искажения
+    const CHEATS = ["Чтение мыслей", "Катастрофизация", "Долженствования", "Навешивание ярлыков", "Фильтрация", "Сверхобобщение", "Персонализация", "Мышление все или ничего"];
+
+    /* ====== Data Management & Storage ====== */
+    function save() { localStorage.setItem('emotionDiaryChats', JSON.stringify(chats)); }
+    function load() {
+        const storedChats = localStorage.getItem('emotionDiaryChats');
+        if (storedChats) { chats = JSON.parse(storedChats); } 
+        else {
+            // Создаем начальный пример, если данных нет
+            chats = [{ id: Date.now(), name: "Пример чата", thoughts: [
+                { text: "Я никогда не смогу это исправить, все ужасно.", beliefPercent: 90, distortions: ["Катастрофизация", "Все или ничего"], rationals: [
+                    { text: "Я справлялся с трудностями раньше, и это не конец света.", percent: 50 }
+                ]}
+            ]}];
+        }
+        if (chats.length > 0 && !activeChatId) { activeChatId = chats[0].id; }
+        render();
     }
+
+    function getActiveChat() { return chats.find(c => c.id === activeChatId); }
+
+    /* ====== UI Rendering ====== */
+    function scrollToBottom() { chatArea.scrollTop = chatArea.scrollHeight; }
 
     function renderUI() {
+      renderChatList();
       const chat = getActiveChat();
       chatArea.innerHTML = "";
-      
-   
-      
- 
 
+      if (!chat || chat.thoughts.length === 0) {
+        const note = document.createElement("div");
+        note.className = "note";
+        note.textContent = "Нажмите + в правом нижнем углу, чтобы добавить первую мысль";
+        // attachTouchAndClick(note, 'empty'); // Убрал привязку контекстного меню к пустому месту, теперь есть кнопка +
+        chatArea.appendChild(note);
+        return;
+      }
 
+      chat.thoughts.forEach((t, idx) => {
+        const group = document.createElement("div");
+        group.className = "chat-message-group";
 
+        // Негативная мысль
+        const neg = document.createElement("div");
+        neg.className = "chat-message neg";
+        neg.textContent = t.text || "(пусто)";
+        attachTouchAndClick(neg, 'thought', idx);
 
-      /* oncontextmenu блокируется глобальным обработчиком ниже */
+        // Процент веры внутри сообщения
+        const negPct = document.createElement("span");
+        negPct.className = "belief-percent";
+        negPct.textContent = t.beliefPercent + "%";
+        neg.appendChild(negPct);
 
-      if (!chat.thoughts.length) { chatArea.innerHTML = '<div class="note">Пока нет мыслей. Нажмите в любом месте чата, чтобы добавить первую мысль.</div>'; }
+        group.appendChild(neg);
 
-     chat.thoughts.forEach((t, idx) => {
-    const group = document.createElement("div"); 
-    group.className = "chat-message-group";
-    group.style.display = "flex"; 
-    group.style.flexDirection = "column"; 
-    group.style.gap = "4px";
+        // Искажения
+        if (t.distortions && t.distortions.length) {
+          t.distortions.forEach(d => {
+            const dist = document.createElement("div");
+            dist.className = "distortion-line neg-dist";
+            dist.textContent = "Искажение: " + d;
+            group.appendChild(dist);
+          });
+        }
+        
+        // Рационалы внутри мысли
+        if (t.rationals && t.rationals.length) { 
+            t.rationals.forEach((r, ri) => { 
+                const rGroup = document.createElement("div");
+                rGroup.className = "chat-message-group";
 
-    // Мысль
-    const neg = document.createElement("div"); 
-    neg.className = "chat-message neg"; 
-    neg.textContent = t.text || "(пустая мысль)";
-    attachTouchAndClick(neg, 'thought', idx); // вешаем клик и долгий тап
+                const rat = document.createElement("div"); 
+                rat.className = "chat-message rat"; 
+                rat.textContent = r.text || "(пусто)"; 
+                attachTouchAndClick(rat, 'rational', idx, ri);
 
-    const meta = document.createElement("div"); 
-    meta.className = "meta-row";
-    const pct = document.createElement("div"); 
-    pct.textContent = (t.beliefPercent || 0) + "%"; 
-    meta.appendChild(pct);
+                // Процент уверенности внутри рационала
+                const ratPct = document.createElement("span");
+                ratPct.className = "belief-percent";
+                ratPct.textContent = (r.percent || 0) + "%"; 
+                rat.appendChild(ratPct);
 
-    group.appendChild(neg); 
-    group.appendChild(meta);
+                rGroup.appendChild(rat);
+                group.appendChild(rGroup);
+            }); 
+        }
 
-    // Искажения
-    if (t.distortions && t.distortions.length) { 
-        const dline = document.createElement("div"); 
-        dline.className = "distortion-line neg-dist"; 
-        dline.textContent = "Искажения: " + t.distortions.join(", "); 
-        group.appendChild(dline);
-    }
+        chatArea.appendChild(group);
+      });
 
-    // Рационалы внутри мысли
-    if (t.rationals && t.rationals.length) { 
-        t.rationals.forEach((r, ri) => { 
-            const rGroup = document.createElement("div");
-            rGroup.className = "chat-message-group";
-
-            const rat = document.createElement("div"); 
-            rat.className = "chat-message rat"; 
-            rat.textContent = r.text || "(пусто)"; 
-            attachTouchAndClick(rat, 'rational', idx, ri);
-
-            const rmeta = document.createElement("div"); 
-            rmeta.className = "meta-row rat-meta"; 
-            const rpct = document.createElement("div"); 
-            rpct.textContent = (r.percent || 0) + "%"; 
-            rmeta.appendChild(rpct);
-
-            rGroup.appendChild(rat);
-            rGroup.appendChild(rmeta);
-            group.appendChild(rGroup);
-        }); 
-    }
-
-    chatArea.appendChild(group);
-});
-
-      function attachTouchAndClick(el, type, tIdx, rIdx = null) {
-    el.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        openContextMenu(e, tIdx, type, rIdx);
-    });
-
-    let touchTimer;
-    el.addEventListener('touchstart', (e) => {
-        touchTimer = setTimeout(() => {
-            openContextMenu({ clientX: e.touches[0].clientX, clientY: e.touches[0].clientY }, tIdx, type, rIdx);
-        }, 500);
-    });
-    el.addEventListener('touchend', () => clearTimeout(touchTimer));
-}
-
-  
-      
       // Инициация прокрутки после того, как элементы добавлены
       setTimeout(scrollToBottom, 50); 
     }
 
+    function attachTouchAndClick(el, type, tIdx, rIdx = null) {
+      let touchTimer;
+      let isLongTouch = false;
 
-    function render() { renderUI(); }
+      el.addEventListener('touchstart', (e) => {
+          // Убедимся, что выделение текста не сработает при таче
+          e.stopPropagation(); 
+          isLongTouch = false;
+          touchTimer = setTimeout(() => {
+              isLongTouch = true;
+              openContextMenu({ clientX: e.touches[0].clientX, clientY: e.touches[0].clientY }, tIdx, type, rIdx);
+          }, 500); // 500ms для лонг-пресса
+      });
+
+
+      el.addEventListener('touchend', () => {
+          clearTimeout(touchTimer);
+      });
+      el.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          // Открываем меню только если это был быстрый клик (не лонг-пресс)
+          if (!isLongTouch) {
+            openContextMenu(e, tIdx, type, rIdx);
+          }
+          isLongTouch = false; // Сброс флага
+      });
+    }
+
+    function renderChatList() {
+        chatListArea.innerHTML = "";
+        chats.forEach(chat => {
+            const item = document.createElement("div");
+            item.className = `chat-item ${chat.id === activeChatId ? 'active' : ''}`;
+            item.textContent = chat.name;
+            item.onclick = () => { activeChatId = chat.id; render(); toggleSideDrawer(); };
+            chatListArea.appendChild(item);
+        });
+    }
+
+    function render() { renderUI(); renderChatList(); }
    
 
     /* ====== Context Menu Functions ====== */
     function openContextMenu(e, tIdx, type, rIdx = null) {
-        e.preventDefault();
+        // Убираем preventDefault() из e, т.к. мы уже обработали его в attachTouchAndClick
         closeContextMenu();
 
         const menuItems = [];
-       if (type === 'thought') {
-    menuItems.push({ name: "Редактировать мысль", action: () => openInputModal('editThought', tIdx) });
-    menuItems.push({ name: "+ Рационал", action: () => openInputModal('newRational', tIdx) });
-    menuItems.push({ name: "Искажения", action: () => openDistortionPanel(tIdx) });
-    menuItems.push({ name: "Удалить мысль", action: () => deleteItem(tIdx, type) });
-}
- else if (type === 'rational') {
+        if (type === 'thought') {
+            menuItems.push({ name: "Редактировать мысль", action: () => openInputModal('editThought', tIdx) });
+            menuItems.push({ name: "+ Рационал", action: () => openInputModal('newRational', tIdx) });
+            menuItems.push({ name: "Искажения", action: () => openDistortionPanel(tIdx) });
+            menuItems.push({ name: "Удалить мысль", action: () => deleteItem(tIdx, type) });
+        } else if (type === 'rational') {
             menuItems.push({ name: "Редактировать рационал", action: () => openInputModal('editRational', tIdx, rIdx) });
             menuItems.push({ name: "Удалить рационал", action: () => deleteItem(tIdx, type, rIdx) });
-        }else if (type === 'empty') {
-    menuItems.push({ name: "Добавить мысль", action: () => openInputModal('newThought') });
-}
-
+        } 
         
         if (menuItems.length === 0) return;
 
@@ -328,8 +396,8 @@
             contextMenu.appendChild(itemEl);
         });
 
-        const clickX = e.clientX || (e.changedTouches ? e.changedTouches.clientX : 0);
-        const clickY = e.clientY || (e.changedTouches ? e.changedTouches.clientY : 0);
+        const clickX = e.clientX || (e.changedTouches ? e.changedTouches[0].clientX : 0); // Исправлено получение координат тача
+        const clickY = e.clientY || (e.changedTouches ? e.changedTouches[0].clientY : 0);
         
         contextMenu.style.top = `${clickY}px`; contextMenu.style.left = `${clickX}px`;
         contextMenuOverlay.classList.add("open"); contextMenu.classList.add("open");
@@ -348,7 +416,6 @@
     contextMenuOverlay.onclick = closeContextMenu;
 
     function deleteItem(tIdx, type, rIdx = null) {
-        // Убеждаемся, что действие инициировано через меню, а не случайно
         if (confirm("Вы уверены, что хотите удалить этот элемент?")) {
             const chat = getActiveChat();
             if (type === 'thought') { chat.thoughts.splice(tIdx, 1); } 
@@ -364,8 +431,8 @@
         inputModalText.value = ''; inputModalPct.value = '';
         
         switch (modeType) {
-            case 'newThought': inputModalTitle.textContent = 'Новая мысль'; inputModalText.placeholder = 'Опиши автоматическую негативную мысль...'; break;
-            case 'newRational': inputModalTitle.textContent = 'Новый рационал'; inputModalText.placeholder = 'Впишите новую рациональную мысль...'; break;
+            case 'newThought': inputModalTitle.textContent = 'Новая мысль'; inputModalText.placeholder = 'Опиши автоматическую негативную мысль...'; inputModalPct.placeholder = "На %"; break;
+            case 'newRational': inputModalTitle.textContent = 'Новый рационал'; inputModalText.placeholder = 'Впишите новую рациональную мысль...'; inputModalPct.placeholder = "На %"; break;
             case 'editThought':
                 const t = getActiveChat().thoughts[tIdx];
                 inputModalTitle.textContent = 'Редактировать мысль'; inputModalText.value = t.text; inputModalPct.value = t.beliefPercent; break;
@@ -424,90 +491,34 @@
           };
           distortionContent.appendChild(item);
       });
-      distortionPanel.classList.add("open");
+      distortionPanel.classList.add('open');
     }
-    function closeDistortionPanel(){ distortionPanel.classList.remove("open"); }
+
+    function closeDistortionPanel() {
+        distortionPanel.classList.remove('open');
+    }
+
+    function toggleSideDrawer() {
+        sideDrawer.classList.toggle('open');
+        document.body.classList.toggle('menu-open');
+    }
+    menuBtn.onclick = toggleSideDrawer;
     
-    function toggleMenu() {
-        const isOpen = sideDrawer.classList.toggle("open");
-        document.body.classList.toggle('menu-open', isOpen);
-        if (window.innerWidth <= 800) {
-            mainGrid.classList.toggle('content-shifted', isOpen);
-        } else {
-            mainGrid.classList.toggle('shifted', isOpen);
+    newChatBtn.onclick = () => {
+        const name = prompt("Введите имя нового чата:");
+        if (name && name.trim() !== "") {
+            const newChat = { id: Date.now(), name: name.trim(), thoughts: [] };
+            chats.push(newChat);
+            activeChatId = newChat.id;
+            save();
+            render();
+            toggleSideDrawer();
         }
-    }
-    function closeMenu() {
-        sideDrawer.classList.remove("open");
-        document.body.classList.remove('menu-open');
-        mainGrid.classList.remove('shifted', 'content-shifted');
-    }
-    
-    // Закрытие меню при клике на оверлей чата
-    mainGrid.addEventListener('click', (e) => {
-        if(sideDrawer.classList.contains('open') &&           e.target.closest('#sideDrawer') === null){
-    e.preventDefault();
-    e.stopPropagation();
-    closeMenu();
-}
-    });
-
-
-    /* ====== Event Listeners ====== */
-    document.getElementById("newChatBtn").onclick = () => {
-      const count = state.chats.length + 1; const name = "Чат " + count; const id = Date.now().toString(36);
-      state.chats.push({id, name, thoughts: []}); state.activeChatId = id; save(); renderChats(); render();
     };
-    menuBtn.onclick = toggleMenu;
-
-    /* ====== Swipe gestures for mobile (Telegram-like) ====== */
-    let startX = 0;
-mainGrid.addEventListener('touchstart', e => { startX = e.touches[0].clientX; });
-mainGrid.addEventListener('touchend', e => {
-    const dx = e.changedTouches[0].clientX - startX;
-    if(Math.abs(dx) < 50) return; // маленький свайп игнорируем
-    if(dx > 0 && !sideDrawer.classList.contains('open')) toggleMenu(); // свайп вправо открывает
-    if(dx < 0 && sideDrawer.classList.contains('open')) closeMenu(); // свайп влево закрывает
-});
 
 
-
-
-
-    document.addEventListener('selectstart', e => e.preventDefault());
-    document.addEventListener('dragstart', e => e.preventDefault());
-
-
-    /* ====== Init ====== */
-    renderChats(); 
-    render();
-    
-    function scrollToBottom() {
-  chatArea.scrollTo({ top: chatArea.scrollHeight, behavior: 'smooth' });
-}
-    
-chatArea.addEventListener('contextmenu', (e) => {
-    e.preventDefault();
-    // если клик не на мысли или рационале
-    if (!e.target.closest('.chat-message') && !e.target.closest('.chat-message-group')) {
-        openContextMenu(e, null, 'empty');
-    }
-});
-
-
-let touchTimer;
-
-chatArea.addEventListener('touchstart', (e) => {
-  touchTimer = setTimeout(() => {
-    if (!e.target.closest('.chat-message') && !e.target.closest('.chat-message-group')) {
-      const touch = e.touches[0];
-      openContextMenu({ clientX: touch.clientX, clientY: touch.clientY }, null, 'empty'); // пустое меню
-    }
-  }, 500); // долгий тап ~500ms
-});
-
-    
-
+    // --- Инициализация приложения ---
+    load();
 
   </script>
 </body>
